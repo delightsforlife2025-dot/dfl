@@ -16,12 +16,14 @@ export async function POST(request: NextRequest) {
       );
 
       // Cookie set et (1 gün geçerli)
+      // Updated for better custom domain support
       response.cookies.set('admin_token', 'authenticated', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: 86400, // 1 day
         path: '/',
+        // Domain will be inferred from request automatically
       });
 
       return response;

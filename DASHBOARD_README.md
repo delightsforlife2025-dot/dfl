@@ -1,179 +1,148 @@
-# Dashboard Yönetim Paneli
+# Dashboard & Authentication Guide
 
-Güvenli admin paneli sistemi kuruldu.
+## Overview
+This dashboard uses a simple cookie-based authentication system with demo credentials.
 
-## 🔐 Giriş Bilgileri
+## Demo Credentials
+- **Email**: admin@restaurant.com
+- **Password**: admin123
 
-**E-posta:** `admin@restaurant.com`  
-**Şifre:** `admin123`
+## How Authentication Works
 
-## 📍 URL'ler
+1. User submits login form (`/dashboard/login`)
+2. Credentials are sent to `/api/auth/login` endpoint
+3. If valid, a secure HTTP-only cookie (`admin_token`) is set for 24 hours
+4. Middleware (`middleware.ts`) checks for this cookie on all `/dashboard/*` routes
+5. Without the cookie, users are redirected to login page
 
-- **Login:** `/dashboard/login`
-- **Dashboard Ana Sayfa:** `/dashboard`
+## Setup on Vercel with Custom Domain
 
-## 🛡️ Güvenlik Özellikleri
-
-### Middleware Koruması
-- `/dashboard` altındaki tüm sayfalar middleware ile korunuyor
-- Token olmadan giriş yapılamaz
-- Token varsa login sayfasına gidildiğinde otomatik dashboard'a yönlendirilir
-
-### Cookie-based Authentication
-- HttpOnly cookie kullanılıyor (XSS saldırılarına karşı koruma)
-- 1 gün geçerlilik süresi
-- Secure flag (production'da HTTPS zorunlu)
-- SameSite strict (CSRF saldırılarına karşı koruma)
-
-### API Endpoints
-- `POST /api/auth/login` - Giriş yapma
-- `POST /api/auth/logout` - Çıkış yapma
-
-## 📁 Dosya Yapısı
+### Step 1: Environment Variables
+Set these in Vercel Project Settings > Environment Variables:
 
 ```
-app/
-├── dashboard/
-│   ├── page.tsx              # Dashboard ana sayfa
-│   ├── login/
-│   │   └── page.tsx          # Login sayfası
-│   ├── menu/                 # (ileride eklenecek)
-│   ├── categories/           # (ileride eklenecek)
-│   ├── gallery/              # (ileride eklenecek)
-│   ├── messages/             # (ileride eklenecek)
-│   └── settings/             # (ileride eklenecek)
-├── api/
-│   └── auth/
-│       ├── login/
-│       │   └── route.ts      # Login API
-│       └── logout/
-│           └── route.ts      # Logout API
-middleware.ts                 # Route protection
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key (for server-side operations)
 ```
 
-## 🎨 Dashboard Özellikleri
+### Step 2: Domain Configuration
+1. Go to Vercel Dashboard > Settings > Domains
+2. Add your custom domain
+3. Follow DNS setup instructions
+4. Wait for SSL certificate to be provisioned (usually 5-10 minutes)
 
-### Ana Sayfa
-- ✅ Responsive sidebar navigasyon
-- ✅ İstatistik kartları (menu öğeleri, kategoriler, galeri, mesajlar)
-- ✅ Hızlı eylem kartları
-- ✅ Son mesajlar tablosu
-- ✅ Çıkış yapma fonksiyonu
+### Step 3: Testing
+1. Deploy to Vercel: `git push`
+2. Visit `https://yourdomain.com/dashboard/login`
+3. Enter demo credentials
+4. You should be redirected to the dashboard
 
-### Login Sayfası
-- ✅ Modern ve minimal tasarım
-- ✅ Form validasyonu
-- ✅ Error mesajları
-- ✅ Loading state
-- ✅ Demo credentials gösterimi
+## Troubleshooting Custom Domain Login Issues
 
-### Navigasyon Menüsü
-1. **Genel Bakış** - Dashboard ana sayfa
-2. **Menü Yönetimi** - Yemek ekleme/düzenleme (TODO)
-3. **Kategoriler** - Kategori yönetimi (TODO)
-4. **Galeri** - Fotoğraf yükleme (TODO)
-5. **Mesajlar** - İletişim formu mesajları (TODO)
-6. **Site Ayarları** - Site bilgileri düzenleme (TODO)
+### Issue: Login page works, but login fails with "Giriş başarısız" error
 
-## 🚀 Test Etme
+**Causes:**
+- Incorrect credentials (verify you're using `admin@restaurant.com` / `admin123`)
+- Network request is blocked
 
-1. Development server'ı başlatın:
-```bash
-npm run dev
-```
+**Solution:**
+1. Open browser DevTools (F12)
+2. Go to Network tab
+3. Try logging in
+4. Check if `/api/auth/login` request shows 200 or 401 status
+5. If 401, verify credentials in `/app/api/auth/login/route.ts`
 
-2. Login sayfasına gidin:
-```
-http://localhost:3000/dashboard/login
-```
+### Issue: Login succeeds but redirects back to login page
 
-3. Demo credentials ile giriş yapın:
-- E-posta: `admin@restaurant.com`
-- Şifre: `admin123`
+**Causes:**
+- Cookies are not being set/persisted (most common with custom domains)
+- Domain cookie configuration issue
+- SameSite attribute too restrictive
 
-4. Dashboard sayfasında olduğunuzu doğrulayın
+**Solutions:**
 
-5. Logout yapın ve tekrar giriş yapmadan `/dashboard` adresine gitmeyi deneyin - login sayfasına yönlendirileceksiniz
+**A. Verify HTTPS is enabled**
+- Custom domains MUST use HTTPS
+- Ensure your domain has valid SSL certificate
+- Check Vercel Dashboard > Settings > Domains > SSL status
 
-## 🔒 Production İçin Öneriler
+**B. Clear cookies and try again**
+1. Go to `/dashboard/login`
+2. Open DevTools > Application > Cookies
+3. Delete any existing `admin_token` cookies
+4. Clear browser cache
+5. Try logging in again
 
-### 1. Güvenli Şifre Sistemi
-Şu anki sistem demo amaçlıdır. Production'da:
-- Şifreleri hash'leyin (bcrypt kullanın)
-- Supabase Auth kullanın
-- JWT token sistemi ekleyin
+**C. Check cookie settings**
+- The login route already uses:
+  - `sameSite: 'lax'` (allows cookies in top-level navigations)
+  - `httpOnly: true` (prevents JavaScript access, security best practice)
+  - `secure: true` (in production - requires HTTPS)
+  - `path: '/'` (cookie available site-wide)
 
+### Issue: Cookies work in development but not in production
+
+**Solution:**
+1. Ensure environment is truly production (check NODE_ENV)
+2. Verify HTTPS certificate is valid
+3. Check that your custom domain is properly configured in Vercel
+4. Temporarily change `sameSite` from `'lax'` to `'none'` and `secure: true` if you need to test cross-domain (not recommended for production)
+
+## Advanced: Switching to Supabase Authentication
+
+The current system uses demo credentials. For production, you should use Supabase Auth:
+
+1. Update `/app/api/auth/login/route.ts` to use:
 ```typescript
-// Örnek: bcrypt ile şifre kontrolü
-import bcrypt from 'bcrypt';
-
-const isValidPassword = await bcrypt.compare(password, hashedPassword);
-```
-
-### 2. Environment Variables
-`.env.local` dosyasına ekleyin:
-```env
-ADMIN_EMAIL=admin@yourdomain.com
-ADMIN_PASSWORD_HASH=your_hashed_password
-JWT_SECRET=your_secret_key
-```
-
-### 3. Supabase Auth Integration
-```typescript
-// Supabase auth kullanımı
-import { supabase } from '@/lib/supabaseClient';
-
-const { data, error } = await supabase.auth.signInWithPassword({
+const { data, error } = await supabaseAdmin.auth.signInWithPassword({
   email,
   password,
 });
 ```
 
-### 4. Rate Limiting
-Login endpoint'ine rate limiting ekleyin:
-- Aynı IP'den çok fazla deneme yapılmasını engelleyin
-- CAPTCHA ekleyin
+2. Update middleware to verify session from Supabase
+3. Add sign-up endpoint
+4. Add password reset functionality
 
-### 5. Session Management
-- Redis ile session yönetimi
-- Token refresh mekanizması
-- Multi-device support
+See `SUPABASE_INTEGRATION_COMPLETE.md` for more details.
 
-## 📊 Veritabanı Entegrasyonu (Gelecek)
+## Key Files
 
-Dashboard sayfalarında Supabase'den veri çekilecek:
+- `/app/api/auth/login/route.ts` - Login API endpoint
+- `/app/api/auth/logout/route.ts` - Logout endpoint
+- `/app/dashboard/login/page.tsx` - Login page UI
+- `/middleware.ts` - Route protection and redirects
+- `/lib/supabaseClient.ts` - Supabase client (browser)
+- `/lib/supabaseServer.ts` - Supabase admin client (server)
 
+## Security Considerations
+
+1. **Demo credentials** are hardcoded for development only
+2. For production, use Supabase Auth or similar service
+3. Cookies are `httpOnly` to prevent XSS attacks
+4. `sameSite: 'lax'` protects against CSRF while allowing normal navigation
+5. Always use HTTPS in production
+
+## Cookie Management
+
+### Setting cookies (in API routes):
 ```typescript
-// Örnek: Mesajları çekme
-const { data: messages } = await supabase
-  .from('contact_messages')
-  .select('*')
-  .order('created_at', { ascending: false })
-  .limit(10);
+response.cookies.set('admin_token', 'authenticated', {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 86400, // 1 day
+  path: '/',
+});
 ```
 
-## 🎯 Sonraki Adımlar
+### Deleting cookies (on logout):
+```typescript
+response.cookies.delete('admin_token');
+```
 
-1. **Mesajlar Sayfası** - İletişim formundan gelen mesajları görüntüleme
-2. **Site Ayarları** - Contact info, opening hours düzenleme
-3. **Menü Yönetimi** - Menu items CRUD operasyonları
-4. **Kategoriler** - Kategori yönetimi
-5. **Galeri** - Fotoğraf upload ve yönetimi
-6. **Supabase Auth** - Gerçek authentication sistemi
-7. **Image Upload** - Supabase Storage ile fotoğraf yükleme
-8. **Rich Text Editor** - Sayfa içeriklerini düzenleme
-
-## 🐛 Sorun Giderme
-
-### Cookie çalışmıyor
-- Browser'da cookies'in enabled olduğundan emin olun
-- Incognito/Private mode kullanmayın
-- `localhost` üzerinde test edin
-
-### Middleware redirect loop
-- Cookie doğru set ediliyor mu kontrol edin
-- Browser console'da hataları kontrol edin
-
-### Login başarılı ama dashboard'a gitmiyor
-- `router.refresh()` çağrıldığından emin olun
-- Browser cache'i temizleyin
+### Accessing cookies (in middleware):
+```typescript
+const token = request.cookies.get('admin_token');
+```

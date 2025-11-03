@@ -29,18 +29,22 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Ensure cookies are sent/received
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
+        // Small delay to ensure cookie is set
+        await new Promise(resolve => setTimeout(resolve, 100));
         router.push("/dashboard");
         router.refresh();
       } else {
         setError(data.error || "Giriş başarısız");
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
       setLoading(false);
