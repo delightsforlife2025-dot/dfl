@@ -8,19 +8,11 @@ export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function Home() {
   // Fetch page content, site settings, and featured menu items from Supabase
-  const [pageData, contactInfo, featuredItems, homeContent] = await Promise.all([
+  const [pageData, contactInfo, featuredItems] = await Promise.all([
     getPageBySlug('home'),
     getSiteSetting('contact_info'),
-    getFeaturedMenuItems(),
-    getSiteSetting('home_content')
+    getFeaturedMenuItems()
   ]);
-
-  // Use home_content settings from database, with fallback to pageData or defaults
-  const hero = {
-    title: homeContent?.hero_title || pageData?.content?.hero?.title || 'Hoş Geldiniz',
-    subtitle: homeContent?.hero_subtitle || pageData?.content?.hero?.subtitle || 'Geleneksel lezzetlerin modern yorumlarıyla buluştuğu bir deneyim.',
-    backgroundImage: homeContent?.hero_image || pageData?.content?.hero?.backgroundImage || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCUDkrTsFEKYuLNX8HnEMUSpoYtQflqJNzEbgqjryRXaSrQ4smsv8MynHcEyt2vchmxuOmoi0a9Pvr4Zf7Ozf42zzO2qf3j1H38lz0Pt9mLZbG0YGjQvyD3408jns1BAIoZhGoc8NV3jOr_q7qiSUwwGhLayA6V-H710Ww5qIRaAGuVcq0M6d6eg_1tlVZSHf6xtHOE_SVwK2JuFJGGVJGWhxeQdAoVTrvOy8gNFluo9C1zt3I_DdyHyb19HBDMT-BY0KFWawBc8scT'
-  };
 
   // Use featured items from database, fallback to static content
   const displayDishes = featuredItems.length > 0 
@@ -49,7 +41,7 @@ export default async function Home() {
       ]);
 
   const philosophy = {
-    text: homeContent?.philosophy_text || pageData?.content?.philosophy?.text || 'Restoranımızda, sade ve yüksek kaliteli malzemelerin gücüne inanıyoruz. Her tabak, taze yerel ürünlerle ve tutku ile hazırlanır.'
+    text: pageData?.content?.philosophy?.text || 'Restoranımızda, sade ve yüksek kaliteli malzemelerin gücüne inanıyoruz. Her tabak, taze yerel ürünlerle ve tutku ile hazırlanır.'
   };
 
   return (
@@ -57,37 +49,8 @@ export default async function Home() {
       <div className="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
         <div className="layout-container flex h-full grow flex-col">
           <Header />
-          <main className="flex flex-1 justify-center py-5 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8">
+          <main className="flex flex-1 justify-center py-5 sm:py-8 lg:py-12 px-4 sm:px-6 lg:px-8 bg-[#FED301] text-black">
             <div className="layout-content-container flex flex-col max-w-7xl flex-1 gap-8 md:gap-12">
-              {/* HeroSection Component */}
-              <section className="@container">
-                <div className="@[480px]:p-0">
-                  <div
-                    className="flex min-h-[480px] md:min-h-[560px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 rounded-xl items-center justify-center p-4 text-center"
-                    data-alt="Warm and inviting interior of a modern restaurant during evening service"
-                    style={{
-                      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.5) 100%), url("${hero.backgroundImage}")`,
-                    }}
-                  >
-                    <div className="flex flex-col gap-2">
-                      <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl lg:text-6xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em]">
-                        {hero.title}
-                      </h1>
-                      <h2 className="text-white text-sm font-normal leading-normal @[480px]:text-base lg:text-lg @[480px]:font-normal @[480px]:leading-normal max-w-2xl mx-auto">
-                        {hero.subtitle}
-                      </h2>
-                    </div>
-                    <div className="flex flex-wrap gap-3 justify-center">
-                      <Link href="/menu" className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-primary text-text-light text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] hover:bg-primary/90 transition-colors">
-                        <span className="truncate">Menüyü Görüntüle</span>
-                      </Link>
-                      <Link href="/contact" className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-background-light dark:bg-border-dark text-text-light dark:text-text-dark text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] hover:bg-border-light dark:hover:bg-opacity-80 transition-colors">
-                        <span className="truncate">Rezervasyon Yap</span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </section>
               {/* SectionHeader Component */}
               <section>
                 <h2 className="text-2xl md:text-3xl font-bold leading-tight tracking-[-0.015em] text-center">Öne Çıkan Yemeklerimiz</h2>
@@ -97,8 +60,11 @@ export default async function Home() {
               <section>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {displayDishes.map((dish: any, index: number) => (
-                    <div key={index} className="flex flex-col gap-3 bg-surface-light dark:bg-surface-dark rounded-lg p-4 hover:shadow-lg transition-shadow">
-                      <div className="relative w-full aspect-4/3 rounded-lg overflow-hidden">
+                    <div
+                      key={index}
+                      className="flex flex-col gap-3 rounded-lg bg-background-light pb-3 shadow-sm transition-all hover:shadow-lg dark:bg-surface-dark"
+                    >
+                      <div className="relative aspect-video w-full rounded-t-lg overflow-hidden">
                         <Image
                           src={dish.image}
                           alt={dish.title}
@@ -107,9 +73,9 @@ export default async function Home() {
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       </div>
-                      <div>
-                        <p className="text-lg font-bold leading-normal">{dish.title}</p>
-                        <p className="text-subtle-light dark:text-subtle-dark text-sm font-normal leading-normal mt-1">
+                      <div className="px-4">
+                        <p className="text-lg font-bold">{dish.title}</p>
+                        <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary line-clamp-2 mt-1">
                           {dish.description}
                         </p>
                         {dish.price && (
@@ -117,6 +83,24 @@ export default async function Home() {
                             ₺{dish.price.toFixed(2)}
                           </p>
                         )}
+
+                        {/* WhatsApp Order Button */}
+                        <div className="flex gap-2 mt-4">
+                          <a
+                            href={contactInfo?.phone
+                              ? `https://wa.me/${contactInfo.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Merhaba! ${dish.title} hakkında bilgi almak istiyorum. Fiyat: ₺${dish.price ? dish.price.toFixed(2) : 'Bilgi için iletişime geçin'}`)}`
+                              : `https://wa.me/?text=${encodeURIComponent(`Merhaba! ${dish.title} hakkında bilgi almak istiyorum. Fiyat: ₺${dish.price ? dish.price.toFixed(2) : 'Bilgi için iletişime geçin'}`)}`
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                            </svg>
+                            <span>Sipariş Ver</span>
+                          </a>
+                        </div>
                       </div>
                     </div>
                   ))}

@@ -140,9 +140,9 @@ export default function Footer() {
         )}
         <div className="flex justify-center gap-5 mt-4">
           {socialLinks.map((link) => (
-            <a 
+            <a
               key={link.id}
-              className="hover:text-primary transition-colors capitalize" 
+              className="hover:text-primary transition-colors capitalize"
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"

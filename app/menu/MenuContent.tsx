@@ -91,7 +91,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
         </div>
       </div>
 
-      <main className="container mx-auto grow p-4">
+      <main className="container mx-auto grow p-4 bg-[#FED301] text-black">
         <div className="flex flex-col gap-8 lg:flex-row">
           {/* Desktop Sidebar */}
           <aside className="hidden lg:block lg:w-64 xl:w-72">

@@ -1,38 +1,80 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Demo credentials - Production'da Supabase auth kullanılabilir
-const ADMIN_EMAIL = 'admin@restaurant.com';
-const ADMIN_PASSWORD = 'admin123';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function POST(request: NextRequest) {
   try {
     const { email, password } = await request.json();
 
-    // Basit credential kontrolü
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: 'E-posta ve şifre gereklidir' },
+        { status: 400 }
+      );
+    }
+
+    // Check default credentials from environment first
+    const defaultEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    const defaultPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+
+    if (defaultEmail && defaultPassword && email === defaultEmail && password === defaultPassword) {
+      // Default credentials match
       const response = NextResponse.json(
         { success: true, message: 'Login successful' },
         { status: 200 }
       );
 
-      // Cookie set et (1 gün geçerli)
-      // Updated for better custom domain support
       response.cookies.set('admin_token', 'authenticated', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 86400, // 1 day
+        maxAge: 86400,
         path: '/',
-        // Domain will be inferred from request automatically
       });
 
       return response;
     }
 
-    return NextResponse.json(
-      { error: 'Geçersiz e-posta veya şifre' },
-      { status: 401 }
+    // Try to sign in with Supabase
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error || !data.session) {
+      console.error('Supabase auth error:', error?.message || 'Unknown error');
+      return NextResponse.json(
+        { error: 'Geçersiz e-posta veya şifre' },
+        { status: 401 }
+      );
+    }
+
+    // Create response with success
+    const response = NextResponse.json(
+      { success: true, message: 'Login successful' },
+      { status: 200 }
     );
+
+    // Set auth token cookie
+    response.cookies.set('admin_token', 'authenticated', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 86400,
+      path: '/',
+    });
+
+    // Set session token
+    if (data.session?.access_token) {
+      response.cookies.set('sb-access-token', data.session.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 86400,
+        path: '/',
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

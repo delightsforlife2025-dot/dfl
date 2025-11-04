@@ -64,7 +64,7 @@ export default function ContactPage() {
         <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
           <div className="layout-container flex h-full grow flex-col">
             <Header />
-            <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 flex items-center justify-center">
+            <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 flex items-center justify-center bg-[#FED301] text-black">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-12 h-12 border-4 border-primary/20 rounded-full animate-spin border-t-primary"></div>
                 <p className="text-text-light dark:text-text-dark text-lg font-medium">Yükleniyor...</p>
@@ -83,7 +83,7 @@ export default function ContactPage() {
         <div className="layout-container flex h-full grow flex-col">
           <Header />
 
-          <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16">
+          <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 bg-[#FED301] text-black">
             <div className="flex flex-wrap justify-between gap-4 mb-10 md:mb-12">
               <div className="flex min-w-72 flex-col gap-3">
                 <p className="text-text-light dark:text-text-dark text-4xl md:text-5xl font-black leading-tight tracking-[-0.033em]">İletişim</p>

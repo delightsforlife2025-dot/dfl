@@ -72,35 +72,35 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
       <div className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-6 lg:px-10 py-3 max-w-7xl mx-auto">
-        <Link href="/" className="flex items-center gap-4">
+        <Link href="/" className="flex items-center">
           {logoUrl ? (
-            <div className="relative h-10 w-auto">
+            <div className="relative h-28 w-auto md:h-32 lg:h-36">
               <Image 
                 src={logoUrl} 
                 alt={siteName}
-                width={120}
-                height={40}
-                className="h-10 w-auto object-contain"
+                width={360}
+                height={144}
+                className="h-full w-auto object-contain"
                 priority
               />
             </div>
           ) : (
-            <div className="size-6 text-primary">
+            <div className="size-20 text-primary md:size-24 lg:size-28">
               <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                 <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
               </svg>
             </div>
           )}
-          <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">{siteName}</h2>
+          <span className="sr-only">{siteName}</span>
         </Link>
 
         {/* Desktop nav (centered) */}
         <div className="hidden md:flex flex-1 justify-center gap-8">
           <div className="flex items-center gap-9">
             {navItems.map((item) => (
-              <Link 
+              <Link
                 key={item.id}
-                className="text-sm font-medium leading-normal hover:text-primary transition-colors" 
+                className="text-sm font-medium leading-normal hover:text-primary transition-colors"
                 href={item.href}
               >
                 {item.label}
@@ -140,10 +140,10 @@ export default function Header() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-3">
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => (
-                <Link 
+                <Link
                   key={item.id}
-                  onClick={() => setOpen(false)} 
-                  className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-surface-light dark:hover:bg-surface-dark" 
+                  onClick={() => setOpen(false)}
+                  className="block px-3 py-2 rounded-md text-sm font-medium hover:bg-surface-light dark:hover:bg-surface-dark"
                   href={item.href}
                 >
                   {item.label}
