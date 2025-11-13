@@ -1,0 +1,121 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                  ║
+║                  🚨 UPDATED: NEW COMPREHENSIVE SQL FILE 🚨                      ║
+║                                                                                  ║
+║              Fixes EVERYTHING: Core Tables + Menu Tables                        ║
+║                                                                                  ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+⚠️  IMPORTANT: USE THE NEW FILE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  OLD: SETUP_RLS.sql (core tables only)
+  ❌ IGNORE THIS NOW
+
+  NEW: SETUP_ALL_RLS_COMPLETE.sql (all 7 tables)
+  ✅ USE THIS INSTEAD
+
+
+📋 WHAT'S INCLUDED NOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Core Tables (5):
+  ✅ pages
+  ✅ site_settings
+  ✅ nav_items
+  ✅ social_links
+  ✅ contact_messages
+
+  Menu Tables (2):
+  ✅ menu_categories
+  ✅ menu_items
+
+  Total: 7 Tables with Complete RLS
+
+
+✨ WHAT THIS FIXES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✅ No more "Error fetching site setting"
+  ✅ No more "Error fetching page"
+  ✅ Settings save successfully
+  ✅ Menu displays perfectly
+  ✅ Menu categories load correctly
+  ✅ Featured items show up
+  ✅ Contact form works
+  ✅ Everything loads without errors
+
+
+3-STEP SETUP (SAME AS BEFORE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Step 1: COPY THE SQL
+  ─────────────────────────────────────────────────────────
+  • Open file: SETUP_ALL_RLS_COMPLETE.sql
+  • Press: Ctrl+A (select all)
+  • Press: Ctrl+C (copy)
+
+
+  Step 2: PASTE IN SUPABASE
+  ─────────────────────────────────────────────────────────
+  • Go to: https://app.supabase.com
+  • Left sidebar: SQL Editor
+  • Top right: + New Query
+  • Press: Ctrl+V (paste)
+  • Click: Run button (blue)
+
+
+  Step 3: TEST & VERIFY
+  ─────────────────────────────────────────────────────────
+  • Terminal: npm run dev
+  • Browser: http://localhost:3000
+  • F12 → Console tab
+  • Look for: ✅ NO red errors
+  • Check: ✅ Menu page works
+  • Check: ✅ Settings work
+
+
+🎯 EXPECTED RESULT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  In Supabase after clicking Run:
+  "Query returned no results" ✅
+
+  In Browser Console after restart:
+  NO red error messages ✅
+
+  Features working:
+  ✅ Home page loads
+  ✅ Menu displays
+  ✅ Categories work
+  ✅ Settings save
+  ✅ Contact form works
+
+
+📞 IF SOMETHING GOES WRONG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Error: "Policy already exists"
+  → That's OK! Click Run anyway. Policies are already there.
+
+  Error: Still seeing "Error fetching"
+  → Refresh browser (Ctrl+Shift+R)
+  → Restart server (npm run dev)
+
+  Error: Menu won't load
+  → Run the SQL in Supabase
+  → Restart server
+
+  Need more help?
+  → See: COMPLETE_RLS_CHECKLIST.md
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+           File: SETUP_ALL_RLS_COMPLETE.sql
+           Time: 5 minutes
+           Result: EVERYTHING WORKS! 🚀
+
+═══════════════════════════════════════════════════════════════════════════════
+

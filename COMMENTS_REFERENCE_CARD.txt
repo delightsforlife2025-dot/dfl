@@ -1,0 +1,374 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    CUSTOMER COMMENTS FEATURE
+                           REFERENCE CARD
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 QUICK REFERENCE
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              IMPLEMENTATION                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1️⃣  RUN SQL SCRIPT
+    Location: sql/comments_schema.sql
+    Time: 30 seconds
+    Steps:
+    a) Open Supabase Dashboard → SQL Editor
+    b) Create New Query
+    c) Copy entire SQL from file
+    d) Click Run
+    ✓ Done!
+
+2️⃣  VERIFY IT WORKS
+    Check 1: Homepage (/):
+       → Scroll down → Look for "Müşteri Yorumları"
+       → Should see 3 sample comments
+
+    Check 2: Admin (/dashboard/comments):
+       → Look for "Yorumlar" in sidebar
+       → Click it → See comment management
+
+    Check 3: Add Comment:
+       → Click "Yorum Ekle"
+       → Fill form
+       → Submit
+       → See confirmation
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            PUBLIC FEATURES                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+HOMEPAGE (/)
+├── Section: "Müşteri Yorumları"
+├── Shows: Only approved comments
+├── Display:
+│   ├── Customer name
+│   ├── Date (Turkish format)
+│   ├── Star rating (⭐⭐⭐⭐⭐)
+│   ├── Comment text
+│   └── Customer image (if provided)
+├── Layout: 3-column grid on desktop, 1-column on mobile
+├── Count: Shows all approved comments
+└── CTA: "Yorum Yaz" button links to contact page
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             ADMIN FEATURES                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+COMMENTS MANAGEMENT PAGE (/dashboard/comments)
+├── Navigate via sidebar: "Yorumlar" link
+├── Features:
+│   ├── Filter tabs:
+│   │   ├── "Tüm Yorumlar" - All comments
+│   │   ├── "Onaylı" - Approved only
+│   │   └── "Beklemede" - Pending only
+│   ├── Comments List (Left side):
+│   │   ├── Shows comment preview
+│   │   ├── Customer name
+│   │   ├── Date
+│   │   ├── Star rating
+│   │   ├── Approval status badge
+│   │   └── Click to select
+│   └── Details Panel (Right side):
+│       ├── Full customer name
+│       ├── Email address
+│       ├── Rating stars (visual)
+│       ├── Full comment text
+│       ├── [✓ Approve/Reject] Button
+│       ├── [✗ Delete] Button
+│       └── Delete confirmation dialog
+├── Buttons:
+│   ├── "Yorum Ekle" - Add new comment
+│   ├── Approve/Reject - Toggle approval status
+│   └── Delete - Remove comment (with confirmation)
+└── Quick Actions: Single click approve/reject/delete
+
+ADD COMMENT PAGE (/dashboard/comments/add)
+├── Navigate via: "Yorum Ekle" button
+├── Form Fields:
+│   ├── Customer Name * (required)
+│   ├── Customer Email (optional)
+│   ├── Customer Image URL (optional)
+│   ├── Rating dropdown (1-5 stars, default 5)
+│   ├── Comment Text * (required)
+│   └── Approval Checkbox (default: checked)
+├── Validation:
+│   ├── Name required
+│   ├── Comment required
+│   ├── Email validated if provided
+│   ├── URL validated if provided
+│   └── Error messages displayed
+├── Actions:
+│   ├── Submit: Creates comment, redirects
+│   └── Cancel: Returns to comments list
+└── Success: Shows message, auto-redirects
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         DATABASE STRUCTURE                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+TABLE: comments
+
+Field                 Type          Description           Required
+─────────────────────────────────────────────────────────────────────────────
+id                    UUID          Unique ID             Auto
+customer_name         text          Customer's name       YES
+customer_email        text          Customer's email      NO
+customer_image_url    text          Profile image URL     NO
+comment_text          text          The comment           YES
+rating                integer       1-5 stars             NO (default: 5)
+is_approved           boolean       Published status      NO (default: false)
+created_at            timestamp     Creation date         Auto
+updated_at            timestamp     Last update           Auto
+
+INDEXES:
+├── idx_comments_created_at  - For ordering
+└── idx_comments_is_approved - For filtering
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          API FUNCTIONS                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Location: lib/api.ts
+
+Function: getApprovedComments()
+├── Returns: Comment[]
+├── Query: WHERE is_approved = true
+├── Use: Homepage display
+└── Example:
+    const comments = await getApprovedComments();
+
+Function: getAllComments()
+├── Returns: Comment[]
+├── Query: All comments
+├── Use: Admin dashboard
+└── Example:
+    const allComments = await getAllComments();
+
+Function: createComment(comment)
+├── Input: Comment data (without id/timestamps)
+├── Returns: Created Comment
+├── Use: Add new comment
+└── Example:
+    const newComment = await createComment({
+      customer_name: "John",
+      comment_text: "Great!",
+      rating: 5,
+      is_approved: true
+    });
+
+Function: updateComment(id, updates)
+├── Input: ID and partial Comment
+├── Returns: Updated Comment
+├── Use: Edit comment
+└── Example:
+    await updateComment(id, { rating: 4 });
+
+Function: approveComment(id)
+├── Input: Comment ID
+├── Returns: Updated Comment
+├── Use: Approve comment
+└── Shortcut for: updateComment(id, { is_approved: true })
+
+Function: rejectComment(id)
+├── Input: Comment ID
+├── Returns: Updated Comment
+├── Use: Unapprove comment
+└── Shortcut for: updateComment(id, { is_approved: false })
+
+Function: deleteComment(id)
+├── Input: Comment ID
+├── Returns: boolean (success)
+├── Use: Remove comment
+└── Example:
+    const success = await deleteComment(commentId);
+
+Function: getCommentById(id)
+├── Input: Comment ID
+├── Returns: Comment | null
+├── Use: Get single comment details
+└── Example:
+    const comment = await getCommentById(id);
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             COMPONENTS                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+CustomerComments.tsx
+├── Location: app/components/
+├── Type: Client Component
+├── Props: comments: Comment[]
+├── Displays:
+│   ├── Comment grid
+│   ├── Star ratings
+│   ├── Customer info
+│   └── CTA button
+├── Hides if: No comments
+└── Styles: Fully responsive, dark mode
+
+Comments Management Page
+├── Location: app/dashboard/comments/page.tsx
+├── Type: Client Component
+├── Features:
+│   ├── Fetch comments
+│   ├── Filter functionality
+│   ├── Selection highlight
+│   ├── Detail panel
+│   ├── Action buttons
+│   └── Delete confirmation
+└── State: comments, loading, filter, selected
+
+Add Comment Form
+├── Location: app/dashboard/comments/add/page.tsx
+├── Type: Client Component
+├── Form:
+│   ├── 6 input fields
+│   ├── Validation
+│   ├── Error messages
+│   └── Success message
+└── Action: POST to database, then redirect
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ROUTE MAPPING                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+PUBLIC ROUTES:
+/                           → Homepage with comments section
+/contact                    → Contact form to submit comments
+
+ADMIN ROUTES (Protected):
+/dashboard/comments         → Manage all comments
+/dashboard/comments/add     → Add new comment form
+
+SIDEBAR NAVIGATION:
+Dashboard > Sidebar > [Yorumlar link]
+                   ↓
+            /dashboard/comments
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           STYLING SYSTEM                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Colors:
+├── Primary: text-primary, bg-primary, hover:bg-primary-dark
+├── Text: text-text-light/dark
+├── Background: bg-background-light/dark
+├── Surface: bg-surface-light/dark
+├── Border: border-border-light/dark
+└── Status:
+    ├── Green: Approved ✓
+    ├── Yellow: Pending ⏳
+    └── Red: Error ✗
+
+Responsive Breakpoints:
+├── Mobile: Full width
+├── sm (640px): Small layouts
+├── md (768px): Medium layouts
+├── lg (1024px): Large layouts (desktop)
+
+Typography:
+├── Headings: font-black, font-bold, font-semibold
+├── Body: font-normal, font-medium
+└── Size: text-xs, text-sm, text-base, text-lg, text-4xl
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        COMMON TASKS                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+ADD NEW COMMENT:
+1. Go to /dashboard/comments
+2. Click "Yorum Ekle" button
+3. Fill in form fields
+4. Click "Yorum Ekle" to submit
+5. See success message
+6. New comment appears in list
+
+APPROVE A COMMENT:
+1. Go to /dashboard/comments
+2. Click comment in list
+3. Check status: "Beklemede" (Pending)
+4. Click "Onayla" button
+5. Status changes to "Onaylı" (Approved)
+6. Comment appears on homepage
+
+DELETE A COMMENT:
+1. Go to /dashboard/comments
+2. Click comment in list
+3. Click "Sil" (Delete) button
+4. Click "Evet, Sil" in confirmation
+5. Comment removed from list
+
+FILTER COMMENTS:
+1. Go to /dashboard/comments
+2. Click filter tab:
+   - "Tüm": All comments
+   - "Onaylı": Approved only
+   - "Beklemede": Pending only
+3. List updates with filtered results
+
+EDIT COMMENT RATING:
+1. Go to /dashboard/comments
+2. Click comment
+3. Edit via admin interface
+4. (Currently approve/reject/delete available)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       TROUBLESHOOTING                                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Issue: Comments not showing on homepage?
+├── Check: Did you run the SQL? (Most common!)
+├── Check: Are comments approved? (is_approved = true)
+├── Check: Refresh the page
+└── Fix: Run SQL from comments_schema.sql
+
+Issue: Admin page shows empty list?
+├── Check: Are you logged in?
+├── Check: Did you run the SQL?
+├── Check: Supabase connection working?
+└── Fix: Check browser console (F12)
+
+Issue: Can't add comments?
+├── Check: You're on the add form page?
+├── Check: Fill all required fields (name + comment)
+├── Check: No validation errors?
+└── Fix: Check browser console for errors
+
+Issue: Images not loading?
+├── Check: URL is correct?
+├── Check: Image still exists?
+├── Check: Using HTTPS (not HTTP)?
+└── Fix: Try different image URL
+
+Issue: Delete not working?
+├── Check: Confirmation clicked?
+├── Check: Refresh page?
+└── Fix: Try again, check console
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DOCUMENTATION                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Files:
+├── IMPLEMENT_COMMENTS_NOW.md       → Step-by-step setup
+├── COMMENTS_FEATURE_SETUP.md       → Detailed documentation
+├── COMMENTS_FILES_GUIDE.md         → Technical guide
+├── COMMENTS_QUICK_START.txt        → Quick reference
+└── COMMENTS_REFERENCE_CARD.txt     → This file
+
+Read:
+1. Start with: IMPLEMENT_COMMENTS_NOW.md (5 min)
+2. Then read: COMMENTS_QUICK_START.txt (2 min)
+3. For details: COMMENTS_FEATURE_SETUP.md (10 min)
+4. For tech: COMMENTS_FILES_GUIDE.md (detailed)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+STATUS: ✅ READY TO IMPLEMENT
+SETUP TIME: ~1 minute
+DIFFICULTY: ⭐ Very Easy
+
+NEXT STEP: Run the SQL script!
+
+═══════════════════════════════════════════════════════════════════════════════
+

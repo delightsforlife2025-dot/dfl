@@ -1,0 +1,392 @@
+═══════════════════════════════════════════════════════════════════════════════
+                      CUSTOMER COMMENTS FEATURE
+                          VISUAL GUIDE
+═══════════════════════════════════════════════════════════════════════════════
+
+This document shows exactly what you'll see when the feature is activated.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                        HOMEPAGE VIEW (/)
+═══════════════════════════════════════════════════════════════════════════════
+
+When you visit the homepage, you'll see this new section:
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│                            ★ ★ ★                                           │
+│                                                                             │
+│                      Müşteri Yorumları                                      │
+│                                                                             │
+│                   Ziyaretçilerimizin deneyimleri bizim                      │
+│                   için en önemli geribildirim. Sizin de                    │
+│                   görüşleriniz bizim için çok değerli!                    │
+│                                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│  │                  │  │                  │  │                  │         │
+│  │    ⭐⭐⭐⭐⭐     │  │    ⭐⭐⭐⭐⭐     │  │    ⭐⭐⭐⭐      │         │
+│  │                  │  │                  │  │                  │         │
+│  │  Ahmet Yılmaz   │  │  Fatma Demir    │  │  Mehmet Kaya    │         │
+│  │  12 Kasım 2025   │  │  12 Kasım 2025   │  │  12 Kasım 2025   │         │
+│  │                  │  │                  │  │                  │         │
+│  │ "Harika bir     │  │ "Şef harika!   │  │ "Menü çeşitleri │         │
+│  │  restoran!      │  │  Her tabak bir  │  │  fazla değil    │         │
+│  │  Yemekler çok   │  │  sanat eseri..."│  │  ama olan       │         │
+│  │  lezzetli..."   │  │                  │  │  yemekler       │         │
+│  │                  │  │  [👤 Image]     │  │  gerçekten      │         │
+│  │                  │  │                  │  │  özel..."       │         │
+│  │                  │  │                  │  │                  │         │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘         │
+│                                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   Deneyiminizi Paylaşın                                 [✏️ Yorum Yaz]    │
+│   Restoranımızdaki deneyiminizi diğer müşterilerle paylaş                │
+│   ve bize geri bildirim ver.                                              │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+KEY FEATURES OF HOMEPAGE VIEW:
+├── Shows only APPROVED comments
+├── Displays in 3-column grid on desktop
+├── 1-column on mobile, 2-column on tablet
+├── Each card shows:
+│   ├── Star rating (1-5 stars)
+│   ├── Customer name
+│   ├── Submission date
+│   ├── Comment text
+│   └── Customer image (if provided)
+├── Call-to-action button at bottom
+└── Auto-hides if no approved comments
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                     ADMIN DASHBOARD - SIDEBAR
+═══════════════════════════════════════════════════════════════════════════════
+
+When you look at the admin sidebar, you'll see a new menu item:
+
+
+┌────────────────────────────┐
+│  🍽️ Restaurant Name        │
+├────────────────────────────┤
+│                            │
+│ 📊 Genel Bakış            │
+│ 🍽️ Menü Yönetimi         │
+│ 📂 Kategoriler             │
+│ 💬 Mesajlar            (3) │
+│ ✨ Yorumlar            ← NEW!
+│ ⚙️ Ayarlar                │
+│                            │
+├────────────────────────────┤
+│ 🌐 Siteyi Görüntüle      │
+│ 🚪 Çıkış Yap              │
+└────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                   ADMIN COMMENTS PAGE - FULL VIEW
+═══════════════════════════════════════════════════════════════════════════════
+
+When you click on "Yorumlar", you'll see this full management interface:
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  Müşteri Yorumları                                      [+ Yorum Ekle]      │
+│  Müşteri yorumlarını yönetin ve onaylayın                                  │
+│                                                                             │
+├──────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  Filter: [Tüm Yorumlar] [Onaylı] [Beklemede]                              │
+│                                                                             │
+├──────────────────────────────────┬──────────────────────────────────────────┤
+│                                  │                                          │
+│  COMMENTS LIST (Left)            │  DETAILS PANEL (Right)                   │
+│                                  │                                          │
+│  ┌──────────────────────────────┐ │  ┌────────────────────────────────────┐│
+│  │ Ahmet Yılmaz       ✓ Onaylı  │ │  │ Ahmet Yılmaz                       ││
+│  │ "Harika bir restoran!..."     │ │  │ ahmet@example.com                 ││
+│  │ ⭐⭐⭐⭐⭐ (5/5)              │ │  │                                    ││
+│  └──────────────────────────────┘ │  │ Tarih: 12 Kasım 2025 17:30         ││
+│                                  │ │  │                                    ││
+│  ┌──────────────────────────────┐ │  │ Puanı: ⭐⭐⭐⭐⭐               ││
+│  │ Fatma Demir        ✓ Onaylı  │ │  │                                    ││
+│  │ "Şef harika! Her tabak..."   │ │  │ Yorum:                             ││
+│  │ ⭐⭐⭐⭐⭐ (5/5)              │ │  │ "Harika bir restoran!              ││
+│  └──────────────────────────────┘ │  │  Yemekler çok lezzetli ve sunumu   ││
+│                                  │ │  │  mükemmel. Kesinlikle tekrar      ││
+│  ┌──────────────────────────────┐ │  │  geleceğim."                       ││
+│  │ Mehmet Kaya        ✓ Onaylı  │ │  │                                    ││
+│  │ "Menü çeşitleri fazla..."    │ │  │ ┌────────────────────────────────┐││
+│  │ ⭐⭐⭐⭐ (4/5)               │ │  │ │ [✓ Onayla Kaldır]  [✗ Sil]    │││
+│  └──────────────────────────────┘ │  │ └────────────────────────────────┘││
+│                                  │ │  │                                    ││
+│                                  │ │  └────────────────────────────────────┘│
+│                                  │ │                                        │
+│                                  │ │  Select a comment to see details      │
+│                                  │ │                                        │
+└──────────────────────────────────┴──────────────────────────────────────────┘
+
+
+KEY FEATURES OF COMMENTS PAGE:
+├── Left Panel (List)
+│   ├── Shows all comments
+│   ├── Click to select
+│   ├── Shows preview text
+│   ├── Shows rating stars
+│   ├── Shows approval status
+│   └── Scrollable list
+├── Right Panel (Details)
+│   ├── Full customer name
+│   ├── Email address
+│   ├── Full submission date
+│   ├── Star rating display
+│   ├── Complete comment text
+│   ├── [✓ Approve/Reject] button
+│   ├── [✗ Delete] button
+│   └── Delete confirmation
+├── Filter Tabs
+│   ├── "Tüm Yorumlar" - Show all comments
+│   ├── "Onaylı" - Show approved only
+│   └── "Beklemede" - Show pending only
+└── "Yorum Ekle" button (top right)
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                    ADD COMMENT FORM PAGE
+═══════════════════════════════════════════════════════════════════════════════
+
+When you click "Yorum Ekle", you'll see this form:
+
+
+                          ← Geri Dön
+
+                          Yorum Ekle
+                          Yeni bir müşteri yorumu ekleyin
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  Müşteri Adı *                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │ örn: Ahmet Yılmaz                                       [cursor blinking]││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+│                                                                             │
+│  E-posta (opsiyonel)                                                        │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │ örn: ahmet@example.com                                                  ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+│                                                                             │
+│  Müşteri Fotoğrafı URL (opsiyonel)                                          │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │ https://example.com/image.jpg                                           ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+│                                                                             │
+│  Puan (1-5)                                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │ ★★★★★ (5 Yıldız)                                            ▼           ││
+│  │ • ★★★★★ (5 Yıldız)                                                     ││
+│  │ • ★★★★ (4 Yıldız)                                                      ││
+│  │ • ★★★ (3 Yıldız)                                                       ││
+│  │ • ★★ (2 Yıldız)                                                        ││
+│  │ • ★ (1 Yıldız)                                                         ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+│                                                                             │
+│  Yorum Metni *                                                              │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │ Müşterinin yorumunu girin...                                            ││
+│  │                                                                         ││
+│  │                                                                         ││
+│  │ (6 rows of textarea)                                                   ││
+│  │                                                                         ││
+│  │                                                                         ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+│                                                                             │
+│  ☑ Bu yorumu hemen yayınla (onayla)                                         │
+│                                                                             │
+│                                                                             │
+│  ┌─────────────────────────────────┐  ┌─────────────────────────────────┐ │
+│  │ [+ Yorum Ekle]                  │  │ [✕ İptal]                       │ │
+│  └─────────────────────────────────┘  └─────────────────────────────────┘ │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+FORM FEATURES:
+├── 6 Input fields
+│   ├── Customer Name (required)
+│   ├── Customer Email (optional)
+│   ├── Image URL (optional)
+│   ├── Rating (dropdown, default 5)
+│   ├── Comment Text (required)
+│   └── Approval checkbox (default: checked)
+├── Validation
+│   ├── Name required
+│   ├── Comment required
+│   ├── Shows error messages
+│   └── Prevents submission if invalid
+├── Actions
+│   ├── Submit button - Creates and redirects
+│   ├── Cancel button - Goes back
+│   └── Loading state while submitting
+└── Success Flow
+    ├── Shows success message
+    ├── Auto-redirects after 1.5 seconds
+    └── New comment appears in list
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                      INTERACTION FLOWS
+═══════════════════════════════════════════════════════════════════════════════
+
+APPROVE A COMMENT:
+──────────────────
+1. Go to /dashboard/comments
+2. Click comment in list
+3. In right panel, click "[✓ Onayla]" button
+4. Status changes to "✓ Onaylı"
+5. Comment appears on homepage
+6. Done! ✓
+
+
+REJECT A COMMENT:
+─────────────────
+1. Go to /dashboard/comments
+2. Click comment in list
+3. Status shows "✓ Onaylı"
+4. Click "[✓ Onayla Kaldır]" button
+5. Status changes to "Beklemede"
+6. Comment hidden from homepage
+7. Done! ✓
+
+
+DELETE A COMMENT:
+────────────────
+1. Go to /dashboard/comments
+2. Click comment in list
+3. Click "[✗ Sil]" button
+4. Confirmation dialog appears:
+   "Bu yorumu silmek istediğinizden emin misiniz?"
+5. Click "Evet, Sil"
+6. Comment removed from list
+7. Done! ✓
+
+
+FILTER COMMENTS:
+────────────────
+1. Go to /dashboard/comments
+2. Click filter tab:
+   - "Tüm Yorumlar" → Shows all
+   - "Onaylı" → Shows approved only
+   - "Beklemede" → Shows pending only
+3. List updates instantly
+4. Done! ✓
+
+
+ADD NEW COMMENT:
+────────────────
+1. Go to /dashboard/comments
+2. Click "[+ Yorum Ekle]" button
+3. Fill form fields
+4. Check "yayınla (onayla)" if approving
+5. Click "Yorum Ekle"
+6. See success message
+7. Auto-redirect to comments list
+8. New comment appears in list
+9. Done! ✓
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                       VISUAL STATES
+═══════════════════════════════════════════════════════════════════════════════
+
+COMMENT STATUS BADGES:
+──────────────────────
+✓ Onaylı   → Green badge (published, shows on homepage)
+⏳ Beklemede → Yellow badge (pending, hidden from public)
+
+
+LOADING STATES:
+───────────────
+• Skeleton screens while fetching
+• Spinner icon during submission
+• Disabled buttons while loading
+
+
+ERROR STATES:
+──────────────
+⚠️ Red error message box with icon
+• Shows validation errors
+• Shows submission errors
+• Clear error messages
+
+
+SUCCESS STATES:
+────────────────
+✅ Green success message box
+• Shows after successful action
+• Auto-disappears after 3 seconds
+
+
+EMPTY STATES:
+──────────────
+📝 "Yorum yok" message
+• Shows when no comments match filter
+• Different messages per filter type
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                    RESPONSIVE DESIGN
+═══════════════════════════════════════════════════════════════════════════════
+
+MOBILE VIEW (< 640px):
+──────────────────────
+✓ Full-width layout
+✓ 1-column grid for comments
+✓ Stacked form fields
+✓ Touch-friendly spacing
+✓ Optimized for small screens
+
+
+TABLET VIEW (640px - 1024px):
+──────────────────────────────
+✓ 2-column grid
+✓ Responsive layout
+✓ Adjusted spacing
+✓ Better form layout
+
+
+DESKTOP VIEW (> 1024px):
+─────────────────────────
+✓ 3-column grid
+✓ Side-by-side panels
+✓ Full spacing
+✓ Optimized for large screens
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                       DARK MODE
+═══════════════════════════════════════════════════════════════════════════════
+
+When dark mode is enabled:
+✓ Background changes to dark
+✓ Text changes to light
+✓ Cards have dark surface
+✓ Borders adjusted for contrast
+✓ All interactive elements styled
+✓ Smooth transition between modes
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+That's what your customers and admins will see!
+
+Ready? Run the SQL script to activate everything! 🚀
+
+═══════════════════════════════════════════════════════════════════════════════
+

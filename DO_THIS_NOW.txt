@@ -1,0 +1,77 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                  ║
+║                          3 SIMPLE STEPS TO LAUNCH                               ║
+║                                                                                  ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+STEP 1️⃣: COPY THE SQL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  📄 Open file: SETUP_RLS.sql
+  ⌨️  Select all: Ctrl+A
+  📋 Copy: Ctrl+C
+
+
+STEP 2️⃣: PASTE IN SUPABASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Go to: https://app.supabase.com
+  2. Click left sidebar: SQL Editor
+  3. Click button: + New Query
+  4. Paste: Ctrl+V
+  5. Click button: Run (blue button on right)
+  6. Wait for result (usually 1-2 seconds)
+
+
+STEP 3️⃣: RESTART & TEST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  In terminal:
+  $ npm run dev
+
+  Then:
+  • Open: http://localhost:3000
+  • Press F12 (DevTools)
+  • Check Console: ✅ No red errors
+  • See: Featured dishes display
+
+
+🎉 YOU'RE DONE!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Your app is now LIVE! 🚀
+
+  All features working:
+  ✅ Home page
+  ✅ Menu system
+  ✅ Dashboard
+  ✅ Settings editor
+  ✅ Contact form
+
+
+WHAT IF SOMETHING GOES WRONG?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Error: "Policy already exists"
+  → That's fine! Just click Run again.
+
+  Error: Still seeing console errors
+  → Refresh page: Ctrl+Shift+R
+  → Restart server: npm run dev
+
+  Error: Settings won't save
+  → Restart server: npm run dev
+
+  Need more help?
+  → See: FIX_CHECKLIST.md
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                    ⏱️  Total Time: 5 minutes
+
+                    👉 Let's go! Copy SETUP_RLS.sql 👈
+
+═══════════════════════════════════════════════════════════════════════════════
+
