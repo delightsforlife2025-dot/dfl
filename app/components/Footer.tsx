@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { getSiteSetting } from "@/lib/api";
 import {
@@ -112,12 +111,14 @@ export default function Footer() {
         <div className="mb-4 flex items-center justify-center gap-4">
           {logoUrl ? (
             <div className="relative h-8 w-auto">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={logoUrl}
                 alt={siteName}
-                width={96}
-                height={32}
                 className="h-8 w-auto object-contain"
+                loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
               />
             </div>
           ) : (

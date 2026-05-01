@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getSiteSetting } from "@/lib/api";
 import { asGeneralSiteSettings } from "@/lib/types";
@@ -73,12 +72,14 @@ export default function DashboardSidebar({ activePage = "dashboard", unreadCount
           <Link href="/dashboard" className="flex items-center gap-3 p-2">
             {logoUrl ? (
               <div className="relative h-8 w-auto">
-                <Image 
-                  src={logoUrl} 
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={logoUrl}
                   alt={siteName}
-                  width={96}
-                  height={32}
                   className="h-8 w-auto object-contain"
+                  loading="eager"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
                 />
               </div>
             ) : (

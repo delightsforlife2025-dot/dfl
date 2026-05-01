@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { getNavItems, getSiteSetting } from "@/lib/api";
 import { asGeneralSiteSettings, type NavItem } from "@/lib/types";
 
@@ -107,13 +106,15 @@ export default function Header() {
         <Link href="/" className="flex shrink-0 items-center">
           {logoUrl ? (
             <div className="relative h-12 w-auto sm:h-14 md:h-16 lg:h-[4.5rem]">
-              <Image
+              {/* Native img: avoids Next/Image remotePatterns edge cases for Supabase Storage URLs */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={logoUrl}
                 alt={siteName}
-                width={280}
-                height={112}
                 className="h-full w-auto max-w-[200px] object-contain sm:max-w-[240px] md:max-w-none"
-                priority
+                loading="eager"
+                decoding="async"
+                referrerPolicy="no-referrer"
               />
             </div>
           ) : (

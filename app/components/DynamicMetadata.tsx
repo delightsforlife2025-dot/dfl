@@ -39,14 +39,21 @@ export default function DynamicMetadata() {
         }
 
         if (generalSettings.favicon_url) {
-          let favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement | null;
-          if (!favicon) {
-            favicon = document.createElement("link");
-            favicon.rel = "icon";
-            document.head.appendChild(favicon);
-          }
-          favicon.type = faviconMimeFromUrl(generalSettings.favicon_url);
-          favicon.href = generalSettings.favicon_url;
+          const href = generalSettings.favicon_url;
+          const type = faviconMimeFromUrl(href);
+          const setIcon = (id: string, rel: string) => {
+            let el = document.getElementById(id) as HTMLLinkElement | null;
+            if (!el) {
+              el = document.createElement("link");
+              el.id = id;
+              el.rel = rel;
+              document.head.appendChild(el);
+            }
+            el.type = type;
+            el.href = href;
+          };
+          setIcon("dfl-site-favicon", "icon");
+          setIcon("dfl-site-favicon-shortcut", "shortcut icon");
         }
 
         if (generalSettings.site_tagline) {

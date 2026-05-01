@@ -61,9 +61,39 @@ export interface GeneralSiteSettings {
   site_tagline?: string;
 }
 
+function firstNonEmptyString(o: Record<string, unknown>, ...keys: string[]): string | undefined {
+  for (const k of keys) {
+    const val = o[k];
+    if (typeof val === "string") {
+      const t = val.trim();
+      if (t) return t;
+    }
+  }
+  return undefined;
+}
+
+/** Normalize dashboard / legacy shapes (snake_case, camelCase, double-encoded JSON). */
 export function asGeneralSiteSettings(v: unknown): GeneralSiteSettings | null {
-  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
-  return v as GeneralSiteSettings;
+  let raw: unknown = v;
+  if (typeof raw === "string") {
+    try {
+      raw = JSON.parse(raw) as unknown;
+    } catch {
+      return null;
+    }
+  }
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const o = raw as Record<string, unknown>;
+  const site_name = firstNonEmptyString(o, "site_name", "siteName");
+  const site_tagline = firstNonEmptyString(o, "site_tagline", "siteTagline");
+  const logo_url = firstNonEmptyString(o, "logo_url", "logoUrl");
+  const favicon_url = firstNonEmptyString(o, "favicon_url", "faviconUrl");
+  const out: GeneralSiteSettings = {};
+  if (site_name) out.site_name = site_name;
+  if (site_tagline) out.site_tagline = site_tagline;
+  if (logo_url) out.logo_url = logo_url;
+  if (favicon_url) out.favicon_url = favicon_url;
+  return out;
 }
 
 export function asContactInfo(v: unknown): ContactInfo | null {
