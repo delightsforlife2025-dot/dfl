@@ -28,10 +28,17 @@ Bu işlem aşağıdaki tabloları oluşturacaktır:
 
 ## 2b. Storage (dashboard resim yüklemeleri)
 
-1. Supabase **Storage** → **New bucket** → ad: **`menu-images`**
-2. **Public bucket** seçin (sitede `getPublicUrl` ile görüntüleme için).
-3. Yükleme tarayıcıdan değil, uygulama içi **`/api/dashboard/upload`** ile **service role** üzerinden yapılır; `SUPABASE_SERVICE_ROLE_KEY` `.env` / Vercel’de tanımlı olmalıdır.
-4. İsteğe bağlı: `sql/storage_policies.sql` ile herkese açık **okuma** politikaları ekleyebilirsiniz.
+**“Bucket not found”** alıyorsanız bucket henüz yok demektir. İkisinden birini yapın:
+
+**A — SQL (hızlı):** SQL Editor’de `sql/create_menu_images_bucket.sql` içeriğini çalıştırın.
+
+**B — Arayüz:** **Storage** → **New bucket** → ad **tam olarak** `menu-images` (küçük harf, tire) → **Public bucket** açık.
+
+Ardından:
+
+1. **Public bucket**, sitede `getPublicUrl` ile görüntüleme için gereklidir.
+2. Yükleme **`/api/dashboard/upload`** ile **service role** üzerinden yapılır; `SUPABASE_SERVICE_ROLE_KEY` `.env` / Vercel’de tanımlı olmalıdır.
+3. İsteğe bağlı: `sql/storage_policies.sql` ile herkese açık **okuma** politikaları ekleyebilirsiniz.
 
 ## 3. Environment Variables Ayarlama
 
