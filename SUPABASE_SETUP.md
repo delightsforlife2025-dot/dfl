@@ -26,6 +26,13 @@ Bu işlem aşağıdaki tabloları oluşturacaktır:
 - `site_settings` - Site ayarları (adres, telefon, çalışma saatleri)
 - `contact_messages` - İletişim formu mesajları
 
+## 2b. Storage (dashboard resim yüklemeleri)
+
+1. Supabase **Storage** → **New bucket** → ad: **`menu-images`**
+2. **Public bucket** seçin (sitede `getPublicUrl` ile görüntüleme için).
+3. Yükleme tarayıcıdan değil, uygulama içi **`/api/dashboard/upload`** ile **service role** üzerinden yapılır; `SUPABASE_SERVICE_ROLE_KEY` `.env` / Vercel’de tanımlı olmalıdır.
+4. İsteğe bağlı: `sql/storage_policies.sql` ile herkese açık **okuma** politikaları ekleyebilirsiniz.
+
 ## 3. Environment Variables Ayarlama
 
 1. Supabase Dashboard'da **Settings** > **API** bölümüne gidin

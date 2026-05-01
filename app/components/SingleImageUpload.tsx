@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, ChangeEvent } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabasePublicObjectPath } from "@/lib/supabasePublicObjectPath";
 interface SingleImageUploadProps {
   imageUrl: string;
   onImageChange: (url: string) => void;
@@ -42,30 +42,26 @@ export default function SingleImageUpload({
     setUploading(true);
 
     try {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("bucket", bucketName);
 
-      // Upload to Supabase Storage
-      const { error } = await supabase.storage
-        .from(bucketName)
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+      const res = await fetch("/api/dashboard/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      const json = (await res.json()) as { url?: string; error?: string };
 
-      if (error) {
-        console.error("Upload error:", error);
-        alert(`Yükleme hatası: ${error.message}`);
+      if (!res.ok) {
+        console.error("Upload error:", json.error);
+        alert(`Yükleme hatası: ${json.error || res.statusText}`);
         return;
       }
 
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from(bucketName).getPublicUrl(filePath);
-
-      onImageChange(publicUrl);
+      if (json.url) {
+        onImageChange(json.url);
+      }
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("Dosya yüklenirken bir hata oluştu.");
@@ -80,18 +76,16 @@ export default function SingleImageUpload({
     if (!confirm("Bu resmi silmek istediğinizden emin misiniz?")) return;
 
     try {
-      // Extract file path from URL
-      const urlParts = imageUrl.split(`/${bucketName}/`);
-      if (urlParts.length > 1) {
-        const filePath = urlParts[1];
-        
-        // Delete from Supabase Storage
-        const { error } = await supabase.storage
-          .from(bucketName)
-          .remove([filePath]);
-
-        if (error) {
-          console.error("Delete error:", error);
+      const filePath = supabasePublicObjectPath(imageUrl, bucketName);
+      if (filePath) {
+        const params = new URLSearchParams({ bucket: bucketName, path: filePath });
+        const res = await fetch(`/api/dashboard/upload?${params}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        if (!res.ok) {
+          const json = (await res.json()) as { error?: string };
+          console.error("Delete error:", json.error);
         }
       }
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import Image from "next/image";
+import { supabasePublicObjectPath } from "@/lib/supabasePublicObjectPath";
 
 interface ImageUploadProps {
   images: string[];
@@ -79,30 +79,26 @@ export default function ImageUpload({
       const uploadedUrls: string[] = [];
 
       for (const file of validFiles) {
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("bucket", bucketName);
 
-        // Upload to Supabase Storage
-        const { error } = await supabase.storage
-          .from(bucketName)
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            upsert: false,
-          });
+        const res = await fetch("/api/dashboard/upload", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+        const json = (await res.json()) as { url?: string; error?: string };
 
-        if (error) {
-          console.error("Upload error:", error);
-          alert(`${file.name} yüklenirken hata oluştu: ${error.message}`);
+        if (!res.ok) {
+          console.error("Upload error:", json.error);
+          alert(`${file.name} yüklenirken hata oluştu: ${json.error || res.statusText}`);
           continue;
         }
 
-        // Get public URL
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from(bucketName).getPublicUrl(filePath);
-
-        uploadedUrls.push(publicUrl);
+        if (json.url) {
+          uploadedUrls.push(json.url);
+        }
       }
 
       if (uploadedUrls.length > 0) {
@@ -120,19 +116,16 @@ export default function ImageUpload({
     const imageUrl = images[index];
     
     try {
-      // Extract file path from URL
-      const urlParts = imageUrl.split(`/${bucketName}/`);
-      if (urlParts.length > 1) {
-        const filePath = urlParts[1];
-        
-        // Delete from Supabase Storage
-        const { error } = await supabase.storage
-          .from(bucketName)
-          .remove([filePath]);
-
-        if (error) {
-          console.error("Delete error:", error);
-          // Continue anyway to remove from UI
+      const filePath = supabasePublicObjectPath(imageUrl, bucketName);
+      if (filePath) {
+        const params = new URLSearchParams({ bucket: bucketName, path: filePath });
+        const res = await fetch(`/api/dashboard/upload?${params}`, {
+          method: "DELETE",
+          credentials: "include",
+        });
+        if (!res.ok) {
+          const json = (await res.json()) as { error?: string };
+          console.error("Delete error:", json.error);
         }
       }
 

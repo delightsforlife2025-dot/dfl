@@ -14,7 +14,7 @@ This app is a **Next.js 16** project. The database and storage live in **Supabas
 
 See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for more detail.
 
-3. **Storage:** If the dashboard uploads images, create a public bucket (e.g. `menu-images`) and align policies with `storage_policies.sql`.
+3. **Storage (required for dashboard images):** In Supabase **Storage**, create a bucket named **`menu-images`**. Mark it **public** so `getPublicUrl` works on the site. Uploads go through **`/api/dashboard/upload`** using the **service role**, so you do not need permissive “anyone can upload” policies for the anon key; optional policies are in `sql/storage_policies.sql` for public **read**.
 
 4. **Auth (optional):** If you log into the dashboard with **Supabase Auth** (not only `ADMIN_EMAIL` / `ADMIN_PASSWORD`), add your production URL under **Authentication → URL configuration** (Site URL and redirect URLs), e.g. `https://your-app.vercel.app` and your custom domain.
 
