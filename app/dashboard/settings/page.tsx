@@ -146,6 +146,7 @@ export default function SettingsPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
+        cache: "no-store",
         body: JSON.stringify({ key, value }),
       });
 
@@ -156,6 +157,12 @@ export default function SettingsPage() {
           if (errorData.error) message = errorData.error;
         } catch {
           /* ignore */
+        }
+        if (response.status === 401) {
+          throw new Error(
+            `${message} — Tarayıcıda giriş oturumunuz yok veya çerez gönderilmedi. ` +
+              "Adres çubuğunda hep aynı adresi kullanın (ör. yalnızca http://localhost:3000 veya yalnızca http://127.0.0.1:3000; ikisini karıştırmayın). Sonra /dashboard/login ile yeniden giriş yapın."
+          );
         }
         throw new Error(message || "Failed to save settings");
       }
