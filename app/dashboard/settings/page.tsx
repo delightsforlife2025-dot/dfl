@@ -85,8 +85,9 @@ export default function SettingsPage() {
     fetchSettings();
   }, []);
 
-  async function fetchSettings() {
-    setLoading(true);
+  async function fetchSettings(options?: { showLoading?: boolean }) {
+    const showLoading = options?.showLoading !== false;
+    if (showLoading) setLoading(true);
     try {
       const { data, error } = await supabase
         .from("site_settings")
@@ -132,30 +133,38 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Error fetching settings:", error);
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }
 
   async function saveSetting(key: string, value: unknown) {
     setSaving(true);
     try {
-      const response = await fetch('/api/settings', {
-        method: 'POST',
+      const response = await fetch("/api/settings", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ key, value }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to save settings');
+        let message = response.statusText;
+        try {
+          const errorData = (await response.json()) as { error?: string };
+          if (errorData.error) message = errorData.error;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(message || "Failed to save settings");
       }
 
-      // notify other parts of the app to re-fetch settings
+      await fetchSettings({ showLoading: false });
+
       try {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('site-settings-updated', { detail: { key, value } }));
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("site-settings-updated", { detail: { key, value } }));
         }
       } catch {
         // ignore dispatch errors
