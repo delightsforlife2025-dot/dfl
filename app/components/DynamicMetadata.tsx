@@ -5,6 +5,17 @@ import { usePathname } from "next/navigation";
 import { getSiteSetting } from "@/lib/api";
 import { asGeneralSiteSettings, type GeneralSiteSettings } from "@/lib/types";
 
+function faviconMimeFromUrl(url: string): string {
+  const path = url.split("?")[0].split("#")[0].toLowerCase();
+  if (path.endsWith(".svg")) return "image/svg+xml";
+  if (path.endsWith(".png")) return "image/png";
+  if (path.endsWith(".webp")) return "image/webp";
+  if (path.endsWith(".gif")) return "image/gif";
+  if (path.endsWith(".jpg") || path.endsWith(".jpeg")) return "image/jpeg";
+  if (path.endsWith(".ico")) return "image/x-icon";
+  return "image/png";
+}
+
 export default function DynamicMetadata() {
   const pathname = usePathname();
   const cachedSettings = useRef<GeneralSiteSettings | null | undefined>(undefined);
@@ -32,9 +43,9 @@ export default function DynamicMetadata() {
           if (!favicon) {
             favicon = document.createElement("link");
             favicon.rel = "icon";
-            favicon.type = "image/x-icon";
             document.head.appendChild(favicon);
           }
+          favicon.type = faviconMimeFromUrl(generalSettings.favicon_url);
           favicon.href = generalSettings.favicon_url;
         }
 

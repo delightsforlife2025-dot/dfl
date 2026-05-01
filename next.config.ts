@@ -1,16 +1,29 @@
 import type { NextConfig } from "next";
 
-function supabaseImageHost(): string | undefined {
+/** Any project on supabase.co — avoids broken logos when build used placeholder env and runtime URL is the real project. */
+const supabaseStoragePublic: {
+  protocol: "https";
+  hostname: string;
+  pathname: string;
+} = {
+  protocol: "https",
+  hostname: "**.supabase.co",
+  pathname: "/storage/v1/object/public/**",
+};
+
+function supabaseCustomImageHost(): string | undefined {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!raw) return undefined;
+  if (!raw || raw.includes("build-placeholder")) return undefined;
   try {
-    return new URL(raw).hostname;
+    const host = new URL(raw).hostname;
+    if (!host || host.endsWith(".supabase.co")) return undefined;
+    return host;
   } catch {
     return undefined;
   }
 }
 
-const supabaseHost = supabaseImageHost();
+const supabaseCustomHost = supabaseCustomImageHost();
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -30,11 +43,13 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "placehold.co",
       },
-      ...(supabaseHost
+      supabaseStoragePublic,
+      ...(supabaseCustomHost
         ? [
             {
               protocol: "https" as const,
-              hostname: supabaseHost,
+              hostname: supabaseCustomHost,
+              pathname: "/storage/v1/object/public/**",
             },
           ]
         : []),
