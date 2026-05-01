@@ -30,7 +30,9 @@ Do **not** commit `.env.local`. Use [`.env.example`](./.env.example) as the chec
 2. **Framework Preset:** Next.js (auto-detected).  
    **Build Command:** `next build` (default).  
    **Output:** default (not static export).
-3. Add **Environment Variables** (Project → Settings → Environment Variables). Use the same names for **Production** and **Preview** unless you use a separate Supabase project for previews.
+3. Add **Environment Variables** (Project → Settings → Environment Variables) **before or right after the first deploy**. Use the same names for **Production** and **Preview** unless you use a separate Supabase project for previews.
+
+   The production build can finish without these variables (the app uses internal placeholders so `createClient` does not throw during `next build`), but **the live site and dashboard will not work** until real Supabase URL, anon key, and service role key are set.
 
 | Name | Value | Expose to browser |
 |------|--------|-------------------|
