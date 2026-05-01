@@ -1,10 +1,13 @@
-import 'server-only';
+import "server-only";
 
-import { supabaseAdmin } from './supabaseServer';
-import type { Page, MenuItem, MenuCategory, Comment } from './types';
+import { supabaseAdmin } from "./supabaseServer";
+import { isSupabaseConfigured } from "./supabaseConfigured";
+import type { Page, MenuItem, MenuCategory, Comment } from "./types";
 
 /** Server-only Supabase reads (service role). Use from Server Components / route handlers only. */
 export async function getPageBySlug(slug: string): Promise<Page | null> {
+  if (!isSupabaseConfigured()) return null;
+
   const { data, error } = await supabaseAdmin
     .from('pages')
     .select('*')
@@ -21,6 +24,8 @@ export async function getPageBySlug(slug: string): Promise<Page | null> {
 }
 
 export async function getSiteSetting(key: string): Promise<unknown> {
+  if (!isSupabaseConfigured()) return null;
+
   const { data, error } = await supabaseAdmin
     .from('site_settings')
     .select('value')
@@ -36,6 +41,8 @@ export async function getSiteSetting(key: string): Promise<unknown> {
 }
 
 export async function getFeaturedMenuItems(): Promise<MenuItem[]> {
+  if (!isSupabaseConfigured()) return [];
+
   const { data, error } = await supabaseAdmin
     .from('menu_items')
     .select('*')
@@ -53,6 +60,8 @@ export async function getFeaturedMenuItems(): Promise<MenuItem[]> {
 }
 
 export async function getApprovedComments(): Promise<Comment[]> {
+  if (!isSupabaseConfigured()) return [];
+
   const { data, error } = await supabaseAdmin
     .from('comments')
     .select('*')
@@ -68,6 +77,8 @@ export async function getApprovedComments(): Promise<Comment[]> {
 }
 
 export async function getMenuCategories(): Promise<MenuCategory[]> {
+  if (!isSupabaseConfigured()) return [];
+
   const { data, error } = await supabaseAdmin
     .from('menu_categories')
     .select('*')
@@ -83,6 +94,8 @@ export async function getMenuCategories(): Promise<MenuCategory[]> {
 }
 
 export async function getMenuItems(categoryId?: string): Promise<MenuItem[]> {
+  if (!isSupabaseConfigured()) return [];
+
   let query = supabaseAdmin
     .from('menu_items')
     .select('*')
