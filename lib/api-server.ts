@@ -30,7 +30,7 @@ export async function getSiteSetting(key: string): Promise<unknown> {
     .from('site_settings')
     .select('value')
     .eq('key', key)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error(`Error fetching site setting "${key}":`, error);
