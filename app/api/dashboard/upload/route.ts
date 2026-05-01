@@ -57,11 +57,14 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Storage upload error:", error);
+      const msg = error.message || "";
+      const bucketHint =
+        /bucket|not found|not_found/i.test(msg)
+          ? " Supabase’de Storage bucket ‘menu-images’ yoksa SQL Editor’de sql/create_menu_images_bucket.sql dosyasını çalıştırın veya Storage → New bucket → adı tam olarak menu-images (public)."
+          : "";
       return NextResponse.json(
         {
-          error:
-            error.message ||
-            "Yükleme başarısız. Supabase Storage’da bucket oluşturuldu mu? (ör. menu-images, herkese açık okuma)",
+          error: (msg || "Yükleme başarısız.") + bucketHint,
         },
         { status: 400 }
       );
