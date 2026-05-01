@@ -62,11 +62,11 @@ CREATE POLICY "Allow authenticated users to delete comments"
   FOR DELETE
   USING (auth.role() = 'authenticated');
 
--- Sample data (optional)
-INSERT INTO comments (customer_name, customer_email, comment_text, rating, is_approved)
+-- Sample data (optional; idempotent via fixed UUIDs)
+INSERT INTO comments (id, customer_name, customer_email, comment_text, rating, is_approved)
 VALUES
-  ('Ahmet Yılmaz', 'ahmet@example.com', 'Harika bir restoran! Yemekler çok lezzetli ve sunumu mükemmel. Kesinlikle tekrar geleceğim.', 5, true),
-  ('Fatma Demir', 'fatma@example.com', 'Şef harika! Her tabak bir sanat eseri. Atmosfer çok sıcak ve samimi. Arkadaşlarıma da tavsiye ettim.', 5, true),
-  ('Mehmet Kaya', 'mehmet@example.com', 'Menü çeşitleri fazla değil ama olan yemekler gerçekten özel. Kalite her şeyden önemli.', 4, true)
-ON CONFLICT DO NOTHING;
+  ('a0000001-0000-4000-8000-000000000001', 'Ahmet Yılmaz', 'ahmet@example.com', 'Harika bir restoran! Yemekler çok lezzetli ve sunumu mükemmel. Kesinlikle tekrar geleceğim.', 5, true),
+  ('a0000001-0000-4000-8000-000000000002', 'Fatma Demir', 'fatma@example.com', 'Şef harika! Her tabak bir sanat eseri. Atmosfer çok sıcak ve samimi. Arkadaşlarıma da tavsiye ettim.', 5, true),
+  ('a0000001-0000-4000-8000-000000000003', 'Mehmet Kaya', 'mehmet@example.com', 'Menü çeşitleri fazla değil ama olan yemekler gerçekten özel. Kalite her şeyden önemli.', 4, true)
+ON CONFLICT (id) DO NOTHING;
 

@@ -2,8 +2,6 @@
 
 import { useState, useRef, ChangeEvent } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import Image from "next/image";
-
 interface SingleImageUploadProps {
   imageUrl: string;
   onImageChange: (url: string) => void;
@@ -49,7 +47,7 @@ export default function SingleImageUpload({
       const filePath = `${fileName}`;
 
       // Upload to Supabase Storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from(bucketName)
         .upload(filePath, file, {
           cacheControl: "3600",
@@ -124,12 +122,14 @@ export default function SingleImageUpload({
       {imageUrl ? (
         // Preview with remove option
         <div className="relative group">
-          <div className={`relative ${aspectRatio} w-full rounded-xl overflow-hidden border-2 border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark`}>
+          <div
+            className={`relative ${aspectRatio} w-full overflow-hidden rounded-xl border-2 border-border-light bg-white`}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl}
               alt={label}
-              className="w-full h-full object-contain"
+              className="h-full w-full object-contain"
             />
           </div>
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 rounded-xl">
@@ -157,12 +157,12 @@ export default function SingleImageUpload({
           className={`relative border-2 border-dashed rounded-xl p-8 transition-all cursor-pointer ${
             uploading
               ? "border-primary bg-primary/5 opacity-50"
-              : "border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark hover:border-primary hover:bg-primary/5"
+              : "border-border-light bg-background-light hover:border-primary hover:bg-primary/5"
           }`}
         >
           <div className="flex flex-col items-center gap-3">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              uploading ? "bg-primary/20" : "bg-border-light dark:bg-border-dark"
+              uploading ? "bg-primary/20" : "bg-border-light"
             }`}>
               <span className="material-symbols-outlined text-3xl text-primary">
                 {uploading ? "hourglass_empty" : "cloud_upload"}
@@ -170,10 +170,10 @@ export default function SingleImageUpload({
             </div>
 
             <div className="text-center">
-              <p className="text-text-light dark:text-text-dark font-medium mb-1">
+              <p className="text-text-light font-medium mb-1">
                 {uploading ? "Yükleniyor..." : `${label} Yükle`}
               </p>
-              <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+              <p className="text-sm text-subtle-light">
                 PNG, JPG, GIF - Maksimum 5MB
               </p>
             </div>

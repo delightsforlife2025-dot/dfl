@@ -82,7 +82,7 @@ export default function MessagesPage() {
   const unreadCount = messages.filter((m) => !m.handled).length;
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="font-display bg-background-light min-h-screen">
       <div className="flex">
         <DashboardSidebar activePage="messages" unreadCount={unreadCount} />
 
@@ -92,10 +92,10 @@ export default function MessagesPage() {
             {/* Page Header */}
             <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
               <div>
-                <h1 className="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em]">
+                <h1 className="text-text-light text-4xl font-black leading-tight tracking-[-0.033em]">
                   Mesajlar
                 </h1>
-                <p className="text-text-secondary-light dark:text-text-secondary-dark mt-2">
+                <p className="text-subtle-light mt-2">
                   İletişim formundan gelen mesajları görüntüleyin
                 </p>
               </div>
@@ -109,13 +109,13 @@ export default function MessagesPage() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-2 mb-6 border-b border-border-light dark:border-border-dark">
+            <div className="flex gap-2 mb-6 border-b border-border-light">
               <button
                 onClick={() => setFilter("all")}
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   filter === "all"
                     ? "border-primary text-primary"
-                    : "border-transparent text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark"
+                    : "border-transparent text-subtle-light hover:text-text-light"
                 }`}
               >
                 Tümü ({messages.length})
@@ -125,7 +125,7 @@ export default function MessagesPage() {
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   filter === "unread"
                     ? "border-primary text-primary"
-                    : "border-transparent text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark"
+                    : "border-transparent text-subtle-light hover:text-text-light"
                 }`}
               >
                 Okunmamış ({unreadCount})
@@ -135,7 +135,7 @@ export default function MessagesPage() {
                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                   filter === "read"
                     ? "border-primary text-primary"
-                    : "border-transparent text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark"
+                    : "border-transparent text-subtle-light hover:text-text-light"
                 }`}
               >
                 Okundu ({messages.filter((m) => m.handled).length})
@@ -145,43 +145,43 @@ export default function MessagesPage() {
             {/* Messages List */}
             {loading ? (
               <div className="text-center py-12">
-                <p className="text-text-secondary-light dark:text-text-secondary-dark">Yükleniyor...</p>
+                <p className="text-subtle-light">Yükleniyor...</p>
               </div>
             ) : messages.length === 0 ? (
-              <div className="text-center py-12 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark">
-                <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark text-5xl mb-4">
+              <div className="rounded-xl border border-border-light bg-white/95 py-12 text-center shadow-sm ring-1 ring-black/[0.04]">
+                <span className="material-symbols-outlined text-subtle-light text-5xl mb-4">
                   inbox
                 </span>
-                <p className="text-text-secondary-light dark:text-text-secondary-dark">Henüz mesaj yok</p>
+                <p className="text-subtle-light">Henüz mesaj yok</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-6 transition-all ${
+                    className={`rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04] transition-all ${
                       !message.handled ? "border-l-4 border-l-primary" : ""
                     }`}
                   >
                     <div className="flex justify-between items-start gap-4 mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
+                          <h3 className="text-text-light text-lg font-bold">
                             {message.name || "İsimsiz"}
                           </h3>
                           {!message.handled && (
                             <span className="bg-primary text-white text-xs font-bold px-2 py-1 rounded">YENİ</span>
                           )}
                         </div>
-                        <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">
+                        <p className="text-subtle-light text-sm">
                           {message.email}
                         </p>
                         {message.subject && (
-                          <p className="text-text-light dark:text-text-dark text-sm font-medium mt-1">
+                          <p className="text-text-light text-sm font-medium mt-1">
                             Konu: {message.subject}
                           </p>
                         )}
-                        <p className="text-text-secondary-light dark:text-text-secondary-dark text-xs mt-2">
+                        <p className="text-subtle-light text-xs mt-2">
                           {new Date(message.created_at).toLocaleString("tr-TR")}
                         </p>
                       </div>
@@ -189,7 +189,7 @@ export default function MessagesPage() {
                         {!message.handled ? (
                           <button
                             onClick={() => markAsHandled(message.id, true)}
-                            className="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors"
+                            className="text-subtle-light hover:text-primary transition-colors"
                             title="Okundu olarak işaretle"
                           >
                             <span className="material-symbols-outlined">check_circle</span>
@@ -197,7 +197,7 @@ export default function MessagesPage() {
                         ) : (
                           <button
                             onClick={() => markAsHandled(message.id, false)}
-                            className="text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors"
+                            className="text-subtle-light hover:text-primary transition-colors"
                             title="Okunmadı olarak işaretle"
                           >
                             <span className="material-symbols-outlined">cancel</span>
@@ -205,15 +205,15 @@ export default function MessagesPage() {
                         )}
                         <button
                           onClick={() => deleteMessage(message.id)}
-                          className="text-text-secondary-light dark:text-text-secondary-dark hover:text-red-500 transition-colors"
+                          className="text-subtle-light hover:text-red-500 transition-colors"
                           title="Sil"
                         >
                           <span className="material-symbols-outlined">delete</span>
                         </button>
                       </div>
                     </div>
-                    <div className="bg-background-light dark:bg-background-dark rounded-lg p-4">
-                      <p className="text-text-light dark:text-text-dark whitespace-pre-wrap">{message.message}</p>
+                    <div className="rounded-lg border border-border-light bg-[#fff9e6] p-4">
+                      <p className="text-text-light whitespace-pre-wrap">{message.message}</p>
                     </div>
                   </div>
                 ))}

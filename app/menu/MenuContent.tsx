@@ -2,12 +2,12 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
-import type { MenuItem, MenuCategory } from "@/lib/types";
+import type { ContactInfo, MenuItem, MenuCategory } from "@/lib/types";
 
 interface MenuContentProps {
   categories: MenuCategory[];
   allItems: MenuItem[];
-  contactInfo?: any;
+  contactInfo?: ContactInfo | null;
 }
 
 export default function MenuContent({ categories, allItems, contactInfo }: MenuContentProps) {
@@ -61,27 +61,29 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
   return (
     <>
       {/* Mobile: compact horizontal categories */}
-      <div className="block lg:hidden border-b border-surface-light dark:border-surface-dark bg-background-light/50">
-        <div className="overflow-x-auto px-4 py-3">
-          <div className="flex gap-3">
+      <div className="block border-b border-border-light bg-[#f5bf00]/90 backdrop-blur-sm lg:hidden">
+        <div className="overflow-x-auto px-4 py-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-max min-w-full gap-2 pb-0.5">
             <button
+              type="button"
               onClick={() => setSelectedCategory(null)}
-              className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
                 selectedCategory === null
-                  ? 'bg-primary text-white'
-                  : 'bg-transparent hover:bg-surface-light dark:hover:bg-surface-dark'
+                  ? "bg-primary text-white shadow-sm"
+                  : "border border-border-light bg-white/90 text-[#2a1a00] hover:bg-white"
               }`}
             >
               Tümü
             </button>
             {categories.map((category) => (
               <button
+                type="button"
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold whitespace-nowrap transition-colors ${
                   selectedCategory === category.id
-                    ? 'bg-primary text-white'
-                    : 'bg-transparent hover:bg-surface-light dark:hover:bg-surface-dark'
+                    ? "bg-primary text-white shadow-sm"
+                    : "border border-border-light bg-white/90 text-[#2a1a00] hover:bg-white"
                 }`}
               >
                 {category.name}
@@ -91,116 +93,119 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
         </div>
       </div>
 
-      <main className="container mx-auto grow p-4 bg-[#FED301] text-black">
-        <div className="flex flex-col gap-8 lg:flex-row">
+      <main className="container mx-auto grow bg-[#f5bf00] p-4 text-[#2a1a00]">
+        {/* lg:items-start so sticky sidebar isn’t stretched to the full grid height */}
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
           {/* Desktop Sidebar */}
-          <aside className="hidden lg:block lg:w-64 xl:w-72">
-            <div className="lg:sticky lg:top-24 flex flex-col gap-4">
-              <div className="flex h-full lg:min-h-[700px] flex-col justify-between">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col">
-                    <h1 className="text-base font-bold">Kategoriler</h1>
-                    <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary">
-                      Bir kategori seçin
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <button
-                      onClick={() => setSelectedCategory(null)}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors text-left ${
-                        selectedCategory === null
-                          ? 'bg-surface-light dark:bg-surface-dark font-bold text-primary'
-                          : 'hover:bg-surface-light dark:hover:bg-surface-dark'
-                      }`}
-                    >
-                      <span className={`material-symbols-outlined ${selectedCategory === null ? 'fill text-primary' : ''}`}>
-                        apps
-                      </span>
-                      <p className="text-sm font-medium">Tüm Ürünler</p>
-                      <span className="ml-auto text-xs text-text-light-secondary dark:text-text-dark-secondary">
-                        ({allItems.length})
-                      </span>
-                    </button>
-                    {categories.map((category) => {
-                      const itemCount = allItems.filter(item => item.category_id === category.id).length;
-                      return (
-                        <button
-                          key={category.id}
-                          onClick={() => setSelectedCategory(category.id)}
-                          className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors text-left ${
-                            selectedCategory === category.id
-                              ? 'bg-surface-light dark:bg-surface-dark font-bold text-primary'
-                              : 'hover:bg-surface-light dark:hover:bg-surface-dark'
-                          }`}
+          <aside className="hidden w-full shrink-0 lg:block lg:w-64 xl:w-72">
+            {/* top below sticky header: large logo + padding ≈ 7–8rem */}
+            <div className="flex flex-col gap-4 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto lg:pr-1">
+              <div className="flex flex-col gap-4 rounded-xl border border-border-light bg-white/95 p-4 shadow-sm ring-1 ring-black/[0.04]">
+                <div className="flex flex-col">
+                  <h1 className="text-base font-bold text-[#2a1a00]">Kategoriler</h1>
+                  <p className="text-sm text-subtle-light">Bir kategori seçin</p>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory(null)}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
+                      selectedCategory === null
+                        ? "bg-primary/10 font-bold text-primary"
+                        : "hover:bg-[#fff9e6]"
+                    }`}
+                  >
+                    <span className={`material-symbols-outlined text-[22px] ${selectedCategory === null ? "fill text-primary" : "text-subtle-light"}`}>
+                      apps
+                    </span>
+                    <p className="text-sm font-medium">Tüm Ürünler</p>
+                    <span className="ml-auto text-xs tabular-nums text-subtle-light">({allItems.length})</span>
+                  </button>
+                  {categories.map((category) => {
+                    const itemCount = allItems.filter((item) => item.category_id === category.id).length;
+                    return (
+                      <button
+                        type="button"
+                        key={category.id}
+                        onClick={() => setSelectedCategory(category.id)}
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
+                          selectedCategory === category.id
+                            ? "bg-primary/10 font-bold text-primary"
+                            : "hover:bg-[#fff9e6]"
+                        }`}
+                      >
+                        <span
+                          className={`material-symbols-outlined text-[22px] ${selectedCategory === category.id ? "fill text-primary" : "text-subtle-light"}`}
                         >
-                          <span className={`material-symbols-outlined ${selectedCategory === category.id ? 'fill text-primary' : ''}`}>
-                            restaurant_menu
-                          </span>
-                          <p className="text-sm font-medium">{category.name}</p>
-                          <span className="ml-auto text-xs text-text-light-secondary dark:text-text-dark-secondary">
-                            ({itemCount})
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                          restaurant_menu
+                        </span>
+                        <p className="min-w-0 flex-1 truncate text-sm font-medium">{category.name}</p>
+                        <span className="shrink-0 text-xs tabular-nums text-subtle-light">({itemCount})</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
           </aside>
 
           {/* Main Content */}
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <div className="flex flex-col gap-6">
               {/* Header with search */}
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <p className="text-4xl font-black tracking-tighter">
-                    {selectedCategory ? getCategoryName(selectedCategory) : 'Menümüz'}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex flex-col gap-1">
+                  <p className="text-3xl font-black tracking-tight sm:text-4xl sm:tracking-tighter">
+                    {selectedCategory ? getCategoryName(selectedCategory) : "Menümüz"}
                   </p>
-                  <p className="text-base text-text-light-secondary dark:text-text-dark-secondary">
+                  <p className="text-base text-subtle-light">
                     {filteredItems.length} ürün gösteriliyor
-                    {searchQuery && ` "${searchQuery}" için`}
+                    {searchQuery ? ` — “${searchQuery}”` : ""}
                   </p>
                 </div>
-                <div className="w-full sm:w-auto sm:min-w-72">
-                  <label className="flex h-12 w-full flex-col">
-                    <div className="flex h-full w-full flex-1 items-stretch rounded-lg">
-                      <div className="flex items-center justify-center rounded-l-lg border-y border-l border-surface-light bg-background-light pl-4 text-text-light-secondary dark:border-surface-dark dark:bg-background-dark dark:text-text-dark-secondary">
-                        <span className="material-symbols-outlined">search</span>
-                      </div>
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="form-input h-full w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg border-y border-r border-surface-light bg-background-light px-4 text-base font-normal placeholder:text-text-light-secondary focus:border-primary focus:outline-0 focus:ring-0 dark:border-surface-dark dark:bg-background-dark placeholder:dark:text-text-dark-secondary"
-                        placeholder="Belirli bir yemeği arayın"
-                      />
-                      {searchQuery && (
-                        <button
-                          onClick={() => setSearchQuery("")}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-light-secondary hover:text-text-light dark:text-text-dark-secondary dark:hover:text-text-dark"
-                        >
-                          <span className="material-symbols-outlined text-xl">close</span>
-                        </button>
-                      )}
-                    </div>
+                <div className="w-full shrink-0 sm:w-72 sm:max-w-md md:w-80">
+                  <label className="sr-only" htmlFor="menu-search">
+                    Menüde ara
                   </label>
+                  <div className="relative flex h-12 w-full items-center rounded-xl border border-border-light bg-white shadow-sm ring-1 ring-black/[0.04]">
+                    <span className="pointer-events-none flex shrink-0 items-center pl-3 text-subtle-light" aria-hidden>
+                      <span className="material-symbols-outlined text-[22px]">search</span>
+                    </span>
+                    <input
+                      id="menu-search"
+                      type="search"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      autoComplete="off"
+                      className="h-full min-w-0 flex-1 border-0 bg-transparent py-2 pr-10 pl-2 text-base text-[#2a1a00] placeholder:text-subtle-light focus:outline-none focus:ring-0"
+                      placeholder="Yemek ara…"
+                    />
+                    {searchQuery ? (
+                      <button
+                        type="button"
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-lg text-subtle-light transition hover:bg-[#fff9e6] hover:text-[#2a1a00]"
+                        aria-label="Aramayı temizle"
+                      >
+                        <span className="material-symbols-outlined text-[22px]">close</span>
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
               </div>
 
               {/* Menu Items Grid */}
               {filteredItems.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <span className="material-symbols-outlined text-6xl text-text-light-secondary dark:text-text-dark-secondary mb-4">
-                    {searchQuery ? 'search_off' : 'restaurant_menu'}
+                <div className="flex flex-col items-center justify-center rounded-xl border border-border-light bg-white/95 py-12 text-center shadow-sm ring-1 ring-black/[0.04]">
+                  <span className="material-symbols-outlined mb-4 text-6xl text-subtle-light">
+                    {searchQuery ? "search_off" : "restaurant_menu"}
                   </span>
-                  <p className="text-xl font-bold mb-2">
-                    {searchQuery ? 'Sonuç bulunamadı' : 'Henüz ürün eklenmemiş'}
+                  <p className="mb-2 text-xl font-bold text-[#2a1a00]">
+                    {searchQuery ? "Sonuç bulunamadı" : "Henüz ürün eklenmemiş"}
                   </p>
-                  <p className="text-text-light-secondary dark:text-text-dark-secondary">
+                  <p className="max-w-sm px-4 text-subtle-light">
                     {searchQuery
-                      ? 'Farklı bir arama terimi deneyin'
+                      ? "Farklı bir arama terimi deneyin veya filtreyi sıfırlayın."
                       : "Dashboard'dan menü öğelerini ekleyebilirsiniz."}
                   </p>
                 </div>
@@ -210,12 +215,12 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                     const displayImage =
                       item.images && item.images.length > 0
                         ? item.images[0]
-                        : item.image_url || 'https://placehold.co/600x400?text=No+Image';
+                        : item.image_url || "https://placehold.co/600x400?text=No+Image";
 
                     return (
                       <div
                         key={item.id}
-                        className="flex flex-col gap-3 rounded-lg bg-background-light pb-3 shadow-sm transition-all hover:shadow-lg dark:bg-surface-dark"
+                        className="flex flex-col gap-3 overflow-hidden rounded-xl border border-border-light bg-white/95 pb-3 shadow-sm ring-1 ring-black/[0.04] transition-all hover:shadow-md"
                       >
                         <div className="relative aspect-video w-full rounded-t-lg overflow-hidden">
                           <Image
@@ -232,9 +237,9 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                           )}
                         </div>
                         <div className="px-4">
-                          <p className="text-lg font-bold">{item.title}</p>
+                          <p className="text-lg font-bold text-[#2a1a00]">{item.title}</p>
                           {item.description && (
-                            <p className="text-sm text-text-light-secondary dark:text-text-dark-secondary line-clamp-2">
+                            <p className="line-clamp-2 text-sm text-subtle-light">
                               {item.description}
                             </p>
                           )}
@@ -246,13 +251,13 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                               {item.ingredients.slice(0, 3).map((ingredient, idx) => (
                                 <span
                                   key={idx}
-                                  className="text-xs bg-surface-light dark:bg-surface-dark px-2 py-1 rounded"
+                                  className="rounded bg-[#fff9e6] px-2 py-1 text-xs ring-1 ring-border-light"
                                 >
                                   {ingredient}
                                 </span>
                               ))}
                               {item.ingredients.length > 3 && (
-                                <span className="text-xs text-text-light-secondary dark:text-text-dark-secondary px-2 py-1">
+                                <span className="px-2 py-1 text-xs text-subtle-light">
                                   +{item.ingredients.length - 3}
                                 </span>
                               )}
@@ -276,8 +281,9 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                               <span>Sipariş Ver</span>
                             </a>
                             <button
+                              type="button"
                               onClick={() => setSelectedItem(item)}
-                              className="px-3 py-2 bg-surface-light dark:bg-surface-dark hover:bg-border-light dark:hover:bg-border-dark text-text-light dark:text-text-dark rounded-lg text-sm font-medium transition-colors"
+                              className="rounded-lg border border-border-light bg-[#fff9e6] px-3 py-2 text-sm font-medium text-[#2a1a00] transition-colors hover:bg-border-light"
                               title="Ürün Detayları"
                             >
                               <span className="material-symbols-outlined text-lg">info</span>
@@ -301,7 +307,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
           onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="relative bg-background-light dark:bg-surface-dark rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+            className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl ring-1 ring-black/10 animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -334,8 +340,8 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                   )}
                 </div>
               ) : (
-                <div className="w-full aspect-video rounded-t-2xl bg-gradient-to-br from-surface-light to-border-light dark:from-surface-dark dark:to-border-dark flex items-center justify-center">
-                  <span className="material-symbols-outlined text-6xl text-subtle-light dark:text-subtle-dark">restaurant</span>
+                <div className="flex aspect-video w-full items-center justify-center rounded-t-2xl bg-gradient-to-br from-[#fff9e6] to-border-light">
+                  <span className="material-symbols-outlined text-6xl text-subtle-light">restaurant</span>
                 </div>
               )}
 
@@ -343,7 +349,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
               <div className="p-6 sm:p-8">
                 {/* Title and Price */}
                 <div className="mb-6">
-                  <h2 className="text-3xl font-bold text-text-light dark:text-text-dark mb-2">
+                  <h2 className="mb-2 text-3xl font-bold text-[#2a1a00]">
                     {selectedItem.title}
                   </h2>
                   <div className="flex items-center gap-3">
@@ -351,11 +357,11 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                       ₺{selectedItem.price.toFixed(2)}
                     </span>
                     {selectedItem.is_available ? (
-                      <span className="text-sm px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
                         Mevcut
                       </span>
                     ) : (
-                      <span className="text-sm px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full font-medium">
+                      <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-800">
                         Tükendi
                       </span>
                     )}
@@ -365,11 +371,11 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                 {/* Description */}
                 {selectedItem.description && (
                   <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-subtle-light dark:text-subtle-dark uppercase tracking-wide mb-2 flex items-center gap-2">
+                    <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-subtle-light">
                       <span className="material-symbols-outlined text-base">description</span>
                       Açıklama
                     </h3>
-                    <p className="text-text-light dark:text-text-dark leading-relaxed">
+                    <p className="leading-relaxed text-[#2a1a00]">
                       {selectedItem.description}
                     </p>
                   </div>
@@ -378,7 +384,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                 {/* Ingredients */}
                 {selectedItem.ingredients && selectedItem.ingredients.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-subtle-light dark:text-subtle-dark uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-subtle-light">
                       <span className="material-symbols-outlined text-base">nutrition</span>
                       İçerikler
                     </h3>
@@ -386,7 +392,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                       {selectedItem.ingredients.map((ingredient, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1.5 bg-surface-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg text-sm font-medium text-text-light dark:text-text-dark"
+                          className="rounded-lg border border-border-light bg-[#fff9e6] px-3 py-1.5 text-sm font-medium text-[#2a1a00]"
                         >
                           {ingredient}
                         </span>
@@ -398,7 +404,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                 {/* Allergens */}
                 {selectedItem.allergens && selectedItem.allergens.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-subtle-light dark:text-subtle-dark uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-subtle-light">
                       <span className="material-symbols-outlined text-base">warning</span>
                       Alerjenler
                     </h3>
@@ -406,7 +412,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                       {selectedItem.allergens.map((allergen, idx) => (
                         <span
                           key={idx}
-                          className="px-3 py-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-lg text-sm font-medium"
+                          className="rounded-lg bg-orange-100 px-3 py-1.5 text-sm font-medium text-orange-800"
                         >
                           {allergen}
                         </span>
@@ -418,7 +424,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                 {/* Tags */}
                 {selectedItem.tags && selectedItem.tags.length > 0 && (
                   <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-subtle-light dark:text-subtle-dark uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-subtle-light">
                       <span className="material-symbols-outlined text-base">label</span>
                       Etiketler
                     </h3>
@@ -438,7 +444,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                 {/* YouTube Video */}
                 {selectedItem.youtube_url && (
                   <div className="mb-6">
-                    <h3 className="text-sm font-semibold text-subtle-light dark:text-subtle-dark uppercase tracking-wide mb-3 flex items-center gap-2">
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-subtle-light">
                       <span className="material-symbols-outlined text-base">play_circle</span>
                       Video
                     </h3>
@@ -455,7 +461,7 @@ export default function MenuContent({ categories, allItems, contactInfo }: MenuC
                 )}
 
                 {/* Action Button */}
-                <div className="pt-4 border-t border-border-light dark:border-border-dark">
+                <div className="border-t border-border-light pt-4">
                   <a
                     href={contactInfo?.phone 
                       ? `https://wa.me/${contactInfo.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Merhaba! ${selectedItem.title} hakkında bilgi almak istiyorum. Fiyat: ₺${selectedItem.price.toFixed(2)}`)}`

@@ -4,12 +4,17 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import SingleImageUpload from "@/app/components/SingleImageUpload";
 import DashboardSidebar from "@/app/components/DashboardSidebar";
+import { errorMessage } from "@/lib/errorMessage";
 
 const MAX_SLIDER_ITEMS = 5;
 
-interface SiteSetting {
+function isRecord(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === "object" && !Array.isArray(v);
+}
+
+interface SiteSettingRow {
   key: string;
-  value: any;
+  value: unknown;
   updated_at: string;
 }
 
@@ -89,33 +94,38 @@ export default function SettingsPage() {
 
       if (error) throw error;
 
-      data?.forEach((setting: SiteSetting) => {
-        if (setting.key === "general_settings") {
-          setGeneralSettings(setting.value);
-        } else if (setting.key === "contact_info") {
-          setContactInfo(setting.value);
-        } else if (setting.key === "social_links") {
-          setSocialLinks(setting.value);
-        } else if (setting.key === "home_content") {
-          const rawSlider = Array.isArray(setting.value?.slider) ? setting.value.slider : [];
+      data?.forEach((setting: SiteSettingRow) => {
+        if (setting.key === "general_settings" && isRecord(setting.value)) {
+          setGeneralSettings((prev) => ({ ...prev, ...(setting.value as Partial<typeof prev>) }));
+        } else if (setting.key === "contact_info" && isRecord(setting.value)) {
+          setContactInfo((prev) => ({ ...prev, ...(setting.value as Partial<typeof prev>) }));
+        } else if (setting.key === "social_links" && isRecord(setting.value)) {
+          setSocialLinks((prev) => ({ ...prev, ...(setting.value as Partial<typeof prev>) }));
+        } else if (setting.key === "home_content" && isRecord(setting.value)) {
+          const v = setting.value;
+          const rawSlider = Array.isArray(v.slider) ? v.slider : [];
+          const highlights = Array.isArray(v.about_highlights)
+            ? (v.about_highlights as unknown[]).filter((x): x is string => typeof x === "string")
+            : [];
           setHomeContent({
-            hero_title: setting.value?.hero_title || "",
-            hero_subtitle: setting.value?.hero_subtitle || "",
-            hero_image: setting.value?.hero_image || "",
-            slider: rawSlider.map((item: any) => ({
-              title: item?.title || "",
-              subtitle: item?.subtitle || "",
-              image: item?.image || "",
-              buttonText: item?.buttonText || "",
-              buttonUrl: item?.buttonUrl || "",
-            })),
-            about_title: setting.value?.about_title || "",
-            about_subtitle: setting.value?.about_subtitle || "",
-            about_description: setting.value?.about_description || "",
-            about_image: setting.value?.about_image || "",
-            about_highlights: Array.isArray(setting.value?.about_highlights)
-              ? setting.value.about_highlights
-              : [],
+            hero_title: typeof v.hero_title === "string" ? v.hero_title : "",
+            hero_subtitle: typeof v.hero_subtitle === "string" ? v.hero_subtitle : "",
+            hero_image: typeof v.hero_image === "string" ? v.hero_image : "",
+            slider: rawSlider.map((item: unknown) => {
+              const o = isRecord(item) ? item : {};
+              return {
+                title: typeof o.title === "string" ? o.title : "",
+                subtitle: typeof o.subtitle === "string" ? o.subtitle : "",
+                image: typeof o.image === "string" ? o.image : "",
+                buttonText: typeof o.buttonText === "string" ? o.buttonText : "",
+                buttonUrl: typeof o.buttonUrl === "string" ? o.buttonUrl : "",
+              };
+            }),
+            about_title: typeof v.about_title === "string" ? v.about_title : "",
+            about_subtitle: typeof v.about_subtitle === "string" ? v.about_subtitle : "",
+            about_description: typeof v.about_description === "string" ? v.about_description : "",
+            about_image: typeof v.about_image === "string" ? v.about_image : "",
+            about_highlights: highlights,
           });
         }
       });
@@ -126,7 +136,7 @@ export default function SettingsPage() {
     }
   }
 
-  async function saveSetting(key: string, value: any) {
+  async function saveSetting(key: string, value: unknown) {
     setSaving(true);
     try {
       const response = await fetch('/api/settings', {
@@ -147,13 +157,13 @@ export default function SettingsPage() {
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('site-settings-updated', { detail: { key, value } }));
         }
-      } catch (e) {
+      } catch {
         // ignore dispatch errors
       }
       alert("Ayarlar kaydedildi! Değişikliklerin yansıması için diğer pencereler veya sayfalar otomatik olarak güncellenecektir.");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving settings:", error);
-      alert("Hata: " + error.message);
+      alert("Hata: " + errorMessage(error));
     } finally {
       setSaving(false);
     }
@@ -239,7 +249,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="font-display bg-background-light min-h-screen">
       <div className="flex">
         <DashboardSidebar activePage="settings" />
 
@@ -248,22 +258,22 @@ export default function SettingsPage() {
           <div className="mx-auto max-w-4xl">
             {/* Page Header */}
             <div className="mb-8">
-              <h1 className="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em]">
+              <h1 className="text-text-light text-4xl font-black leading-tight tracking-[-0.033em]">
                 Site Ayarları
               </h1>
-              <p className="text-text-secondary-light dark:text-text-secondary-dark mt-2">
+              <p className="text-subtle-light mt-2">
                 Sitenizin genel ayarlarını yönetin
               </p>
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 mb-6 border-b border-border-light dark:border-border-dark overflow-x-auto">
+            <div className="flex gap-2 mb-6 border-b border-border-light overflow-x-auto">
               <button
                 onClick={() => setActiveTab("general")}
                 className={`px-4 py-3 font-medium transition-colors whitespace-nowrap ${
                   activeTab === "general"
                     ? "text-primary border-b-2 border-primary"
-                    : "text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark"
+                    : "text-subtle-light hover:text-text-light"
                 }`}
               >
                 Genel Ayarlar
@@ -273,7 +283,7 @@ export default function SettingsPage() {
                 className={`px-4 py-3 font-medium transition-colors whitespace-nowrap ${
                   activeTab === "contact"
                     ? "text-primary border-b-2 border-primary"
-                    : "text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark"
+                    : "text-subtle-light hover:text-text-light"
                 }`}
               >
                 İletişim Bilgileri
@@ -283,7 +293,7 @@ export default function SettingsPage() {
                 className={`px-4 py-3 font-medium transition-colors whitespace-nowrap ${
                   activeTab === "social"
                     ? "text-primary border-b-2 border-primary"
-                    : "text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark"
+                    : "text-subtle-light hover:text-text-light"
                 }`}
               >
                 Sosyal Medya
@@ -293,7 +303,7 @@ export default function SettingsPage() {
                 className={`px-4 py-3 font-medium transition-colors whitespace-nowrap ${
                   activeTab === "home"
                     ? "text-primary border-b-2 border-primary"
-                    : "text-text-secondary-light dark:text-text-secondary-dark hover:text-text-light dark:hover:text-text-dark"
+                    : "text-subtle-light hover:text-text-light"
                 }`}
               >
                 Ana Sayfa
@@ -309,14 +319,14 @@ export default function SettingsPage() {
                 {/* General Settings Tab */}
                 {activeTab === "general" && (
                   <form onSubmit={handleGeneralSubmit} className="space-y-6">
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 border border-border-light dark:border-border-dark">
-                      <h2 className="text-xl font-bold text-text-light dark:text-text-dark mb-4 flex items-center gap-2">
+                    <div className="rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04]">
+                      <h2 className="text-xl font-bold text-text-light mb-4 flex items-center gap-2">
                         <span className="material-symbols-outlined text-primary">settings</span>
                         Genel Site Ayarları
                       </h2>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">title</span>
                               Site Adı
@@ -326,16 +336,16 @@ export default function SettingsPage() {
                             type="text"
                             value={generalSettings.site_name}
                             onChange={(e) => setGeneralSettings({ ...generalSettings, site_name: e.target.value })}
-                            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full rounded-lg border border-border-light bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             placeholder="Restoran Adı"
                           />
-                          <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                          <p className="text-xs text-subtle-light mt-1">
                             Header, footer ve sayfa başlıklarında görünür
                           </p>
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">description</span>
                               Site Sloganı
@@ -345,16 +355,16 @@ export default function SettingsPage() {
                             type="text"
                             value={generalSettings.site_tagline}
                             onChange={(e) => setGeneralSettings({ ...generalSettings, site_tagline: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="Lezzet ve kalite bir arada"
                           />
-                          <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                          <p className="text-xs text-subtle-light mt-1">
                             SEO için önemli, meta açıklamalarında kullanılır
                           </p>
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">image</span>
                               Logo
@@ -366,13 +376,13 @@ export default function SettingsPage() {
                             label="Logo"
                             aspectRatio="aspect-[3/1]"
                           />
-                          <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-2">
+                          <p className="text-xs text-subtle-light mt-2">
                             Header&apos;da gösterilecek logo (tercihen transparan PNG, önerilen boyut: 300x100px)
                           </p>
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">bookmark</span>
                               Favicon
@@ -384,13 +394,13 @@ export default function SettingsPage() {
                             label="Favicon"
                             aspectRatio="aspect-square"
                           />
-                          <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-2">
+                          <p className="text-xs text-subtle-light mt-2">
                             Tarayıcı sekmesinde gösterilecek ikon (kare format, önerilen boyut: 32x32 veya 64x64 px)
                           </p>
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">palette</span>
                               Ana Renk (Primary Color)
@@ -401,32 +411,32 @@ export default function SettingsPage() {
                               type="color"
                               value={generalSettings.primary_color}
                               onChange={(e) => setGeneralSettings({ ...generalSettings, primary_color: e.target.value })}
-                              className="h-12 w-20 rounded-lg border border-border-light dark:border-border-dark cursor-pointer"
+                              className="h-12 w-20 rounded-lg border border-border-light cursor-pointer"
                             />
                             <input
                               type="text"
                               value={generalSettings.primary_color}
                               onChange={(e) => setGeneralSettings({ ...generalSettings, primary_color: e.target.value })}
-                              className="flex-1 px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                              className="flex-1 px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                               placeholder="#ff6b35"
                               pattern="^#[0-9A-Fa-f]{6}$"
                             />
                           </div>
-                          <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                          <p className="text-xs text-subtle-light mt-1">
                             Butonlar, linkler ve vurgular için kullanılır (CSS değişkenlerini güncellemeniz gerekebilir)
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                       <div className="flex gap-3">
-                        <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">info</span>
+                        <span className="material-symbols-outlined text-blue-600">info</span>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                          <h3 className="font-semibold text-blue-900 mb-1">
                             Önemli Notlar
                           </h3>
-                          <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
+                          <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
                             <li>Logo ve favicon değişiklikleri tarayıcı önbelleğinden dolayı hemen görünmeyebilir</li>
                             <li>Primary color değişikliği için CSS variables güncellenmeli</li>
                             <li>Değişiklikler site genelinde etkili olacaktır</li>
@@ -458,13 +468,13 @@ export default function SettingsPage() {
                 {/* Contact Info Tab */}
                 {activeTab === "contact" && (
                   <form onSubmit={handleContactSubmit} className="space-y-6">
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 border border-border-light dark:border-border-dark">
-                      <h2 className="text-xl font-bold text-text-light dark:text-text-dark mb-4">
+                    <div className="rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04]">
+                      <h2 className="text-xl font-bold text-text-light mb-4">
                         İletişim Bilgileri
                       </h2>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">location_on</span>
                               Adres
@@ -473,14 +483,14 @@ export default function SettingsPage() {
                           <textarea
                             value={contactInfo.address}
                             onChange={(e) => setContactInfo({ ...contactInfo, address: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                             rows={2}
                             placeholder="Restoran adresiniz"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">call</span>
                               Telefon
@@ -490,13 +500,13 @@ export default function SettingsPage() {
                             type="tel"
                             value={contactInfo.phone}
                             onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="+90 555 123 45 67"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">mail</span>
                               E-posta
@@ -506,13 +516,13 @@ export default function SettingsPage() {
                             type="email"
                             value={contactInfo.email}
                             onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="info@lezzetduragi.com"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             <span className="flex items-center gap-2">
                               <span className="material-symbols-outlined text-base">schedule</span>
                               Çalışma Saatleri
@@ -521,7 +531,7 @@ export default function SettingsPage() {
                           <textarea
                             value={contactInfo.hours}
                             onChange={(e) => setContactInfo({ ...contactInfo, hours: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                             rows={3}
                             placeholder="Pazartesi - Pazar: 10:00 - 23:00"
                           />
@@ -529,9 +539,9 @@ export default function SettingsPage() {
                       </div>
                     </div>
 
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 border border-border-light dark:border-border-dark">
+                    <div className="rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04]">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-text-light dark:text-text-dark flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-text-light flex items-center gap-2">
                           <span className="material-symbols-outlined text-primary">slideshow</span>
                           Ana Sayfa Slider Bannerları
                         </h3>
@@ -539,7 +549,7 @@ export default function SettingsPage() {
                           type="button"
                           onClick={addSliderItem}
                           disabled={homeContent.slider.length >= MAX_SLIDER_ITEMS}
-                          className="inline-flex items-center gap-2 rounded-lg border border-border-light dark:border-border-dark px-4 py-2 text-sm font-medium text-text-light dark:text-text-dark hover:bg-border-light dark:hover:bg-border-dark transition disabled:opacity-50"
+                          className="inline-flex items-center gap-2 rounded-lg border border-border-light px-4 py-2 text-sm font-medium text-text-light hover:bg-border-light transition disabled:opacity-50"
                         >
                           <span className="material-symbols-outlined text-base">add</span>
                           Yeni Banner Ekle
@@ -547,7 +557,7 @@ export default function SettingsPage() {
                       </div>
 
                       {homeContent.slider.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-border-light dark:border-border-dark bg-background-light/50 dark:bg-background-dark/50 p-6 text-center text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                        <div className="rounded-xl border border-dashed border-border-light bg-white/80 p-6 text-center text-sm text-subtle-light">
                           Henüz slider banner eklenmemiş. “Yeni Banner Ekle” butonuna tıklayarak ilk bannerınızı oluşturabilirsiniz.
                         </div>
                       ) : (
@@ -555,17 +565,17 @@ export default function SettingsPage() {
                           {homeContent.slider.map((slide, index) => (
                             <div
                               key={index}
-                              className="rounded-2xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark/60 shadow-sm overflow-hidden"
+                              className="overflow-hidden rounded-2xl border border-border-light bg-white shadow-sm"
                             >
-                              <div className="flex items-center justify-between border-b border-border-light dark:border-border-dark bg-background-light/80 dark:bg-background-dark/60 px-4 py-3">
-                                <div className="flex items-center gap-2 text-text-light dark:text-text-dark">
+                              <div className="flex items-center justify-between border-b border-border-light bg-[#fff9e6] px-4 py-3">
+                                <div className="flex items-center gap-2 text-text-light">
                                   <span className="material-symbols-outlined text-primary">image</span>
                                   <p className="font-semibold">Banner {index + 1}</p>
                                 </div>
                                 <button
                                   type="button"
                                   onClick={() => removeSliderItem(index)}
-                                  className="inline-flex items-center gap-1 rounded-lg bg-red-100 dark:bg-red-900/30 px-3 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition"
+                                  className="inline-flex items-center gap-1 rounded-lg bg-red-100 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-200 transition"
                                 >
                                   <span className="material-symbols-outlined text-sm">delete</span>
                                   Kaldır
@@ -575,25 +585,25 @@ export default function SettingsPage() {
                                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                                   <div className="lg:col-span-2 space-y-4">
                                     <div>
-                                      <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                                      <label className="block text-sm font-medium text-text-light mb-2">
                                         Banner Başlığı
                                       </label>
                                       <input
                                         type="text"
                                         value={slide.title}
                                         onChange={(e) => updateSliderItem(index, "title", e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                                        className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
                                         placeholder="Örn: Yeni Menüde %20 İndirim"
                                       />
                                     </div>
                                     <div>
-                                      <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                                      <label className="block text-sm font-medium text-text-light mb-2">
                                         Banner Alt Başlığı
                                       </label>
                                       <textarea
                                         value={slide.subtitle}
                                         onChange={(e) => updateSliderItem(index, "subtitle", e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition resize-none"
+                                        className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition resize-none"
                                         rows={3}
                                         placeholder="Kısa açıklama giriniz..."
                                       />
@@ -607,7 +617,7 @@ export default function SettingsPage() {
                                       aspectRatio="aspect-[16/9]"
                                       bucketName="menu-images"
                                     />
-                                    <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-2">
+                                    <p className="text-xs text-subtle-light mt-2">
                                       Önerilen boyut: 1600x900 px. En iyi sonuç için yüksek kaliteli görseller kullanın.
                                     </p>
                                   </div>
@@ -619,54 +629,54 @@ export default function SettingsPage() {
                       )}
                     </div>
 
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 border border-border-light dark:border-border-dark">
-                      <h3 className="text-lg font-semibold text-text-light dark:text-text-dark mb-4 flex items-center gap-2">
+                    <div className="rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04]">
+                      <h3 className="text-lg font-semibold text-text-light mb-4 flex items-center gap-2">
                         <span className="material-symbols-outlined text-primary">info</span>
                         Hakkımızda Bölümü
                       </h3>
                       <div className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                            <label className="block text-sm font-medium text-text-light mb-2">
                               Başlık
                             </label>
                             <input
                               type="text"
                               value={homeContent.about_title}
                               onChange={(e) => setHomeContent({ ...homeContent, about_title: e.target.value })}
-                              className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                              className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
                               placeholder="Örn: Delights for Life'a Hoş Geldiniz"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                            <label className="block text-sm font-medium text-text-light mb-2">
                               Alt Başlık
                             </label>
                             <input
                               type="text"
                               value={homeContent.about_subtitle}
                               onChange={(e) => setHomeContent({ ...homeContent, about_subtitle: e.target.value })}
-                              className="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                              className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
                               placeholder="Örn: Geleneksel tatları modern dokunuşlarla sunuyoruz"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             Açıklama
                           </label>
                           <textarea
                             value={homeContent.about_description}
                             onChange={(e) => setHomeContent({ ...homeContent, about_description: e.target.value })}
-                            className="w-full px-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition resize-none"
+                            className="w-full px-4 py-3 rounded-lg border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition resize-none"
                             rows={4}
                             placeholder="Restoranınızın hikayesi, değerleri ve misyonunu anlatan kısa metin."
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             Hakkımızda Görseli
                           </label>
                           <SingleImageUpload
@@ -676,7 +686,7 @@ export default function SettingsPage() {
                             aspectRatio="aspect-[4/3]"
                             bucketName="menu-images"
                           />
-                          <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-2">
+                          <p className="text-xs text-subtle-light mt-2">
                             Önerilen boyut: 1200x900 px. Görsel, Hakkımızda kartında kullanılacaktır.
                           </p>
                         </div>
@@ -696,59 +706,59 @@ export default function SettingsPage() {
                 {/* Social Media Tab */}
                 {activeTab === "social" && (
                   <form onSubmit={handleSocialSubmit} className="space-y-6">
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 border border-border-light dark:border-border-dark">
-                      <h2 className="text-xl font-bold text-text-light dark:text-text-dark mb-4">
+                    <div className="rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04]">
+                      <h2 className="text-xl font-bold text-text-light mb-4">
                         Sosyal Medya Hesapları
                       </h2>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             Facebook URL
                           </label>
                           <input
                             type="url"
                             value={socialLinks.facebook}
                             onChange={(e) => setSocialLinks({ ...socialLinks, facebook: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="https://facebook.com/lezzetduragi"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             Instagram URL
                           </label>
                           <input
                             type="url"
                             value={socialLinks.instagram}
                             onChange={(e) => setSocialLinks({ ...socialLinks, instagram: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="https://instagram.com/lezzetduragi"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             Twitter URL
                           </label>
                           <input
                             type="url"
                             value={socialLinks.twitter}
                             onChange={(e) => setSocialLinks({ ...socialLinks, twitter: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="https://twitter.com/lezzetduragi"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             YouTube URL
                           </label>
                           <input
                             type="url"
                             value={socialLinks.youtube}
                             onChange={(e) => setSocialLinks({ ...socialLinks, youtube: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="https://youtube.com/@lezzetduragi"
                           />
                         </div>
@@ -768,9 +778,9 @@ export default function SettingsPage() {
                 {/* Home Page Tab */}
                 {activeTab === "home" && (
                   <form onSubmit={handleHomeSubmit} className="space-y-6">
-                    <div className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 border border-border-light dark:border-border-dark">
+                    <div className="rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04]">
                       <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-text-light dark:text-text-dark">
+                        <h2 className="text-xl font-bold text-text-light">
                           Ana Sayfa İçeriği
                         </h2>
                         <button
@@ -785,33 +795,33 @@ export default function SettingsPage() {
                       </div>
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             Hero Başlık
                           </label>
                                                     <input
                             type="text"
                             value={homeContent.hero_title}
                             onChange={(e) => setHomeContent({ ...homeContent, hero_title: e.target.value })}
-                            className="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg bg-background-light dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-primary"
+                            className="w-full rounded-lg border border-border-light bg-white px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
                             placeholder="Hoş Geldiniz"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             Hero Alt Başlık
                           </label>
                           <input
                             type="text"
                             value={homeContent.hero_subtitle}
                             onChange={(e) => setHomeContent({ ...homeContent, hero_subtitle: e.target.value })}
-                            className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                             placeholder="Geleneksel lezzetlerin modern yorumlarıyla..."
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                          <label className="block text-sm font-medium text-text-light mb-2">
                             Hero Arka Plan Resmi
                           </label>
                           <SingleImageUpload

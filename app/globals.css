@@ -1,26 +1,43 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-family-display: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: #c66600;
+  --color-primary-dark: #8f4800;
+  --color-background-light: #f5bf00;
+  --color-background-dark: #1b1200;
+  --color-surface-light: #fff9e6;
+  --color-surface-dark: #2b1a00;
+  --color-text-light: #2a1a00;
+  --color-text-dark: #fff9e6;
+  --color-subtle-light: #a86c00;
+  --color-subtle-dark: #c8a961;
+  --color-border-light: #fce6a4;
+  --color-border-dark: #3c2a0e;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Full-page brand background — not overridden by prefers-color-scheme or dark: */
+:root {
+  --app-page-bg: #f5bf00;
+}
+
+html {
+  background-color: var(--app-page-bg);
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Manrope', Arial, Helvetica, sans-serif;
+  background-color: var(--app-page-bg);
+  color: #2a1a00;
+  min-height: 100%;
+}
+
+/* Smooth view transitions for slider / hovers */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }

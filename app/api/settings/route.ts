@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseServer';
+import { errorMessage } from '@/lib/errorMessage';
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,10 +34,10 @@ export async function POST(request: NextRequest) {
       { success: true, message: 'Settings saved successfully' },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Settings API error:', error);
     return NextResponse.json(
-      { error: error.message || 'Internal server error' },
+      { error: errorMessage(error, 'Internal server error') },
       { status: 500 }
     );
   }

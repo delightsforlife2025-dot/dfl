@@ -70,7 +70,7 @@ export default function HomeSlider({ slides, className }: HomeSliderProps) {
   if (!slideCount) return null;
 
   return (
-    <section className={`relative w-full overflow-hidden bg-background-light dark:bg-background-dark ${className || ""}`}>
+    <section className={`relative w-full overflow-hidden bg-[#f5bf00] ${className || ""}`}>
       <div className="relative h-[300px] sm:h-[380px] md:h-[440px] lg:h-[520px]">
         <div
           className="flex h-full transition-transform duration-700 ease-in-out"

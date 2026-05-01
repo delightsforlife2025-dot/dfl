@@ -3,18 +3,19 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { getSiteSetting } from "@/lib/api";
+import { asGeneralSiteSettings, type GeneralSiteSettings } from "@/lib/types";
 
 export default function DynamicMetadata() {
   const pathname = usePathname();
-  const cachedSettings = useRef<any>(null);
+  const cachedSettings = useRef<GeneralSiteSettings | null | undefined>(undefined);
 
   useEffect(() => {
     let mounted = true;
 
     async function updateMetadata() {
-      // Fetch settings if not cached
-      if (!cachedSettings.current) {
-        cachedSettings.current = await getSiteSetting("general_settings");
+      if (cachedSettings.current === undefined) {
+        const raw = await getSiteSetting("general_settings");
+        cachedSettings.current = asGeneralSiteSettings(raw);
       }
 
       const generalSettings = cachedSettings.current;
@@ -22,12 +23,10 @@ export default function DynamicMetadata() {
       if (!mounted) return;
 
       if (generalSettings) {
-        // Update page title
         if (generalSettings.site_name) {
           document.title = generalSettings.site_name;
         }
 
-        // Update favicon: reuse existing element if present
         if (generalSettings.favicon_url) {
           let favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement | null;
           if (!favicon) {
@@ -39,7 +38,6 @@ export default function DynamicMetadata() {
           favicon.href = generalSettings.favicon_url;
         }
 
-        // Update meta description
         if (generalSettings.site_tagline) {
           let metaDescription = document.querySelector("meta[name='description']") as HTMLMetaElement | null;
           if (!metaDescription) {
@@ -55,18 +53,17 @@ export default function DynamicMetadata() {
     updateMetadata();
 
     const handler = () => {
-      // Clear cache and re-fetch when settings change
-      cachedSettings.current = null;
+      cachedSettings.current = undefined;
       updateMetadata();
     };
 
-    window.addEventListener('site-settings-updated', handler as EventListener);
+    window.addEventListener("site-settings-updated", handler as EventListener);
 
     return () => {
       mounted = false;
-      window.removeEventListener('site-settings-updated', handler as EventListener);
+      window.removeEventListener("site-settings-updated", handler as EventListener);
     };
-  }, [pathname]); // Re-run on every route change
+  }, [pathname]);
 
   return null;
 }

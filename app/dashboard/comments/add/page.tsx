@@ -75,15 +75,15 @@ export default function AddCommentPage() {
         router.push("/dashboard/comments");
         router.refresh();
       }, 1500);
-    } catch (err: any) {
-      setError(err.message || "Yorum eklenirken bir hata oluştu");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Yorum eklenirken bir hata oluştu");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="font-display bg-background-light min-h-screen">
       <div className="flex">
         <DashboardSidebar activePage="comments" />
 
@@ -99,17 +99,17 @@ export default function AddCommentPage() {
                 <span className="material-symbols-outlined text-base">arrow_back</span>
                 Geri Dön
               </Link>
-              <p className="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em]">
+              <p className="text-text-light text-4xl font-black leading-tight tracking-[-0.033em]">
                 Yorum Ekle
               </p>
-              <p className="text-text-secondary-light dark:text-text-secondary-dark text-base mt-2">
+              <p className="text-subtle-light text-base mt-2">
                 Yeni bir müşteri yorumu ekleyin
               </p>
             </div>
 
             {/* Success Message */}
             {success && (
-              <div className="mb-6 p-4 rounded-lg bg-green-100 border border-green-200 text-green-700 dark:bg-green-900/30 dark:border-green-800 dark:text-green-400">
+              <div className="mb-6 p-4 rounded-lg bg-green-100 border border-green-200 text-green-700">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-base">check_circle</span>
                   <span>Yorum başarıyla eklendi!</span>
@@ -119,7 +119,7 @@ export default function AddCommentPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="mb-6 p-4 rounded-lg bg-red-100 border border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-800 dark:text-red-400">
+              <div className="mb-6 p-4 rounded-lg bg-red-100 border border-red-200 text-red-700">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-base">error</span>
                   <span>{error}</span>
@@ -131,7 +131,7 @@ export default function AddCommentPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Customer Name */}
               <div>
-                <label className="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">
+                <label className="block text-sm font-semibold text-text-light mb-2">
                   Müşteri Adı *
                 </label>
                 <input
@@ -140,14 +140,14 @@ export default function AddCommentPage() {
                   value={formData.customer_name}
                   onChange={handleInputChange}
                   placeholder="örn: Ahmet Yılmaz"
-                  className="w-full px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-background-dark text-text-light dark:text-text-dark placeholder-text-secondary-light dark:placeholder-text-secondary-dark focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 rounded-lg border border-border-light bg-white text-text-light placeholder-text-secondary-light focus:outline-none focus:ring-2 focus:ring-primary"
                   required
                 />
               </div>
 
               {/* Customer Email */}
               <div>
-                <label className="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">
+                <label className="block text-sm font-semibold text-text-light mb-2">
                   E-posta (opsiyonel)
                 </label>
                 <input
@@ -156,20 +156,20 @@ export default function AddCommentPage() {
                   value={formData.customer_email}
                   onChange={handleInputChange}
                   placeholder="örn: ahmet@example.com"
-                  className="w-full px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-background-dark text-text-light dark:text-text-dark placeholder-text-secondary-light dark:placeholder-text-secondary-dark focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 rounded-lg border border-border-light bg-white text-text-light placeholder-text-secondary-light focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               {/* Rating */}
               <div>
-                <label className="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">
+                <label className="block text-sm font-semibold text-text-light mb-2">
                   Puan (1-5)
                 </label>
                 <select
                   name="rating"
                   value={formData.rating}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-background-dark text-text-light dark:text-text-dark focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-2 rounded-lg border border-border-light bg-white text-text-light focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   <option value={5}>★★★★★ (5 Yıldız)</option>
                   <option value={4}>★★★★ (4 Yıldız)</option>
@@ -181,7 +181,7 @@ export default function AddCommentPage() {
 
               {/* Comment Text */}
               <div>
-                <label className="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">
+                <label className="block text-sm font-semibold text-text-light mb-2">
                   Yorum Metni *
                 </label>
                 <textarea
@@ -190,7 +190,7 @@ export default function AddCommentPage() {
                   onChange={handleInputChange}
                   placeholder="Müşterinin yorumunu girin..."
                   rows={6}
-                  className="w-full px-4 py-2 rounded-lg border border-border-light dark:border-border-dark bg-white dark:bg-background-dark text-text-light dark:text-text-dark placeholder-text-secondary-light dark:placeholder-text-secondary-dark focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  className="w-full px-4 py-2 rounded-lg border border-border-light bg-white text-text-light placeholder-text-secondary-light focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                   required
                 />
               </div>
@@ -203,11 +203,11 @@ export default function AddCommentPage() {
                   name="is_approved"
                   checked={formData.is_approved}
                   onChange={handleInputChange}
-                  className="w-4 h-4 rounded border-border-light dark:border-border-dark focus:ring-2 focus:ring-primary cursor-pointer"
+                  className="w-4 h-4 rounded border-border-light focus:ring-2 focus:ring-primary cursor-pointer"
                 />
                 <label
                   htmlFor="is_approved"
-                  className="text-sm font-medium text-text-light dark:text-text-dark cursor-pointer"
+                  className="text-sm font-medium text-text-light cursor-pointer"
                 >
                   Bu yorumu hemen yayınla (onayla)
                 </label>
@@ -227,7 +227,7 @@ export default function AddCommentPage() {
                 </button>
                 <Link
                   href="/dashboard/comments"
-                  className="flex items-center justify-center gap-2 rounded-lg bg-surface-light dark:bg-surface-dark hover:bg-border-light dark:hover:bg-border-dark text-text-light dark:text-text-dark px-4 py-3 font-semibold transition"
+                  className="flex items-center justify-center gap-2 rounded-lg border border-border-light bg-white px-4 py-3 font-semibold text-text-light transition hover:bg-border-light"
                 >
                   <span className="material-symbols-outlined text-base">close</span>
                   İptal

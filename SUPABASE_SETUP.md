@@ -36,15 +36,20 @@ Bu işlem aşağıdaki tabloları oluşturacaktır:
 3. Proje kök dizininde `.env.local` dosyası oluşturun:
 
 ```bash
-cp .env.local.example .env.local
+cp .env.example .env.local
 ```
 
-4. `.env.local` dosyasını açıp değerleri doldurun:
+4. `.env.local` dosyasını açıp değerleri doldurun (tam liste için `.env.example`):
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your-project-url.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+ADMIN_EMAIL=you@example.com
+ADMIN_PASSWORD=your-secure-password
 ```
+
+**Vercel’e yayın:** Ortam değişkenlerini Vercel proje ayarlarına aynı isimlerle ekleyin. Adım adım rehber için [DEPLOY.md](./DEPLOY.md) dosyasına bakın.
 
 ## 4. Row Level Security (RLS) Ayarları
 
@@ -167,7 +172,7 @@ INSERT INTO site_settings (key, value) VALUES
 
 ## Önemli Notlar
 
-- Menü sayfası henüz Supabase'e bağlanmadı (gelecekte eklenecek)
-- İletişim formundan gelen mesajlar `contact_messages` tablosuna kaydediliyor
-- Sayfa içerikleri 60 saniyede bir otomatik olarak yenileniyor (revalidate)
-- Production ortamına geçmeden önce güvenlik politikalarını gözden geçirin
+- Menü ve kategoriler Supabase `menu_items` / `menu_categories` tablolarındadır; admin yazma işlemleri API + `SUPABASE_SERVICE_ROLE_KEY` ile yapılır.
+- İletişim formundan gelen mesajlar `contact_messages` tablosuna kaydediliyor.
+- Sayfa içerikleri 60 saniyede bir otomatik olarak yenileniyor (revalidate).
+- Production ortamına geçmeden önce güvenlik politikalarını ve Vercel ortam değişkenlerini gözden geçirin ([DEPLOY.md](./DEPLOY.md)).

@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## DFL: Supabase + Vercel
+
+- **Local env:** copy [`.env.example`](./.env.example) to `.env.local` and fill in values.
+- **Database:** [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) (SQL order and RLS).
+- **Production:** [DEPLOY.md](./DEPLOY.md) (Vercel environment variables and checklist).
+
 ## Getting Started
 
 First, run the development server:

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import type { MenuCategory } from "@/lib/types";
 import DashboardSidebar from "@/app/components/DashboardSidebar";
+import { errorMessage } from "@/lib/errorMessage";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<MenuCategory[]>([]);
@@ -26,15 +26,15 @@ export default function CategoriesPage() {
   async function fetchCategories() {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("menu_categories")
-        .select("*")
-        .order("position", { ascending: true });
-
-      if (error) throw error;
-      setCategories(data || []);
-    } catch (error) {
+      const res = await fetch("/api/dashboard/categories", { credentials: "include" });
+      const json = (await res.json()) as { categories?: MenuCategory[]; error?: string };
+      if (!res.ok) {
+        throw new Error(json.error || "Kategoriler yüklenemedi");
+      }
+      setCategories(json.categories ?? []);
+    } catch (error: unknown) {
       console.error("Error fetching categories:", error);
+      alert(errorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -64,34 +64,38 @@ export default function CategoriesPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const categoryData = {
-      name: formData.name,
-      slug: formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
-      description: formData.description || null,
-      image_url: formData.image_url || null,
+    const payload = {
+      name: formData.name.trim(),
+      description: formData.description.trim() || null,
+      image_url: formData.image_url.trim() || null,
       visible: formData.visible,
     };
 
     try {
-      if (editingCategory) {
-        // Update
-        const { error } = await supabase
-          .from("menu_categories")
-          .update(categoryData)
-          .eq("id", editingCategory.id);
+      const res = editingCategory
+        ? await fetch("/api/dashboard/categories", {
+            method: "PUT",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: editingCategory.id, ...payload }),
+          })
+        : await fetch("/api/dashboard/categories", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
 
-        if (error) throw error;
-      } else {
-        // Insert
-        const { error } = await supabase.from("menu_categories").insert([categoryData]);
-        if (error) throw error;
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        throw new Error(json.error || "Kayıt başarısız");
       }
 
       setShowModal(false);
-      fetchCategories();
-    } catch (error: any) {
+      await fetchCategories();
+    } catch (error: unknown) {
       console.error("Error saving category:", error);
-      alert("Hata: " + error.message);
+      alert("Hata: " + errorMessage(error));
     }
   }
 
@@ -99,30 +103,38 @@ export default function CategoriesPage() {
     if (!confirm("Bu kategoriyi silmek istediğinizden emin misiniz? Bu kategoriye ait ürünlerin kategori bilgisi silinecek.")) return;
 
     try {
-      const { error } = await supabase.from("menu_categories").delete().eq("id", id);
-      if (error) throw error;
-      fetchCategories();
-    } catch (error) {
+      const res = await fetch(`/api/dashboard/categories?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(json.error || "Silinemedi");
+      await fetchCategories();
+    } catch (error: unknown) {
       console.error("Error deleting category:", error);
+      alert(errorMessage(error));
     }
   }
 
   async function toggleVisibility(id: string, visible: boolean) {
     try {
-      const { error } = await supabase
-        .from("menu_categories")
-        .update({ visible: !visible })
-        .eq("id", id);
-
-      if (error) throw error;
-      fetchCategories();
-    } catch (error) {
+      const res = await fetch("/api/dashboard/categories", {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, visible: !visible }),
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(json.error || "Güncellenemedi");
+      await fetchCategories();
+    } catch (error: unknown) {
       console.error("Error updating visibility:", error);
+      alert(errorMessage(error));
     }
   }
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="font-display bg-background-light min-h-screen">
       <div className="flex">
         <DashboardSidebar activePage="categories" />
 
@@ -132,10 +144,10 @@ export default function CategoriesPage() {
             {/* Page Header */}
             <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
               <div>
-                <h1 className="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em]">
+                <h1 className="text-text-light text-4xl font-black leading-tight tracking-[-0.033em]">
                   Kategoriler
                 </h1>
-                <p className="text-text-secondary-light dark:text-text-secondary-dark mt-2">
+                <p className="text-subtle-light mt-2">
                   Menü kategorilerinizi yönetin
                 </p>
               </div>
@@ -155,11 +167,11 @@ export default function CategoriesPage() {
               </div>
             ) : categories.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <span className="material-symbols-outlined text-6xl text-text-secondary-light dark:text-text-secondary-dark mb-4">
+                <span className="material-symbols-outlined text-6xl text-subtle-light mb-4">
                   category
                 </span>
                 <p className="text-xl font-bold mb-2">Henüz kategori eklenmemiş</p>
-                <p className="text-text-secondary-light dark:text-text-secondary-dark mb-6">
+                <p className="text-subtle-light mb-6">
                   İlk kategorinizi ekleyerek başlayın.
                 </p>
                 <button
@@ -174,7 +186,7 @@ export default function CategoriesPage() {
                 {categories.map((category) => (
                   <div
                     key={category.id}
-                    className="bg-surface-light dark:bg-surface-dark rounded-xl p-6 shadow-sm hover:shadow-lg transition-all border border-border-light dark:border-border-dark"
+                    className="rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04] transition-all hover:shadow-md"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
@@ -182,28 +194,28 @@ export default function CategoriesPage() {
                           <span className="material-symbols-outlined text-primary text-2xl">category</span>
                         </div>
                         <div>
-                          <h3 className="text-lg font-bold text-text-light dark:text-text-dark">
+                          <h3 className="text-lg font-bold text-text-light">
                             {category.name}
                           </h3>
-                          <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                          <p className="text-sm text-subtle-light">
                             {category.slug}
                           </p>
                         </div>
                       </div>
                       {!category.visible && (
-                        <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded">
+                        <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">
                           Gizli
                         </span>
                       )}
                     </div>
 
                     {category.description && (
-                      <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">
+                      <p className="text-sm text-subtle-light mb-4 line-clamp-2">
                         {category.description}
                       </p>
                     )}
 
-                    <div className="flex gap-2 pt-4 border-t border-border-light dark:border-border-dark">
+                    <div className="flex gap-2 pt-4 border-t border-border-light">
                       <button
                         onClick={() => openModal(category)}
                         className="flex-1 px-3 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
@@ -212,7 +224,7 @@ export default function CategoriesPage() {
                       </button>
                       <button
                         onClick={() => toggleVisibility(category.id, category.visible)}
-                        className="px-3 py-2 bg-background-light dark:bg-background-dark rounded-lg text-sm font-medium hover:bg-border-light dark:hover:bg-border-dark transition-colors"
+                        className="rounded-lg border border-border-light bg-white px-3 py-2 text-sm font-medium transition-colors hover:bg-border-light"
                         title={category.visible ? "Gizle" : "Göster"}
                       >
                         <span className="material-symbols-outlined text-xl">
@@ -221,7 +233,7 @@ export default function CategoriesPage() {
                       </button>
                       <button
                         onClick={() => deleteCategory(category.id)}
-                        className="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                        className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
                       >
                         <span className="material-symbols-outlined text-xl">delete</span>
                       </button>
@@ -237,9 +249,9 @@ export default function CategoriesPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-surface-dark rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-border-light dark:border-border-dark">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-border-light">
             {/* Modal Header */}
-            <div className="p-6 border-b border-border-light dark:border-border-dark">
+            <div className="p-6 border-b border-border-light">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -248,19 +260,19 @@ export default function CategoriesPage() {
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-text-light dark:text-text-dark text-2xl font-bold">
+                    <h2 className="text-text-light text-2xl font-bold">
                       {editingCategory ? "Kategori Düzenle" : "Yeni Kategori"}
                     </h2>
-                    <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">
+                    <p className="text-subtle-light text-sm">
                       Kategori bilgilerini girin
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-xl hover:bg-black/5 flex items-center justify-center transition-colors"
                 >
-                  <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark">
+                  <span className="material-symbols-outlined text-subtle-light">
                     close
                   </span>
                 </button>
@@ -270,41 +282,41 @@ export default function CategoriesPage() {
             {/* Modal Body */}
             <form onSubmit={handleSubmit} className="p-6 space-y-6">
               <div>
-                <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                <label className="block text-sm font-medium text-text-light mb-2">
                   Kategori Adı <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   placeholder="Örn: Ana Yemekler"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                <label className="block text-sm font-medium text-text-light mb-2">
                   Açıklama
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                   rows={3}
                   placeholder="Kategori hakkında kısa açıklama..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                <label className="block text-sm font-medium text-text-light mb-2">
                   Resim URL (Opsiyonel)
                 </label>
                 <input
                   type="url"
                   value={formData.image_url}
                   onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
@@ -315,19 +327,19 @@ export default function CategoriesPage() {
                   id="visible"
                   checked={formData.visible}
                   onChange={(e) => setFormData({ ...formData, visible: e.target.checked })}
-                  className="w-5 h-5 rounded border-border-light dark:border-border-dark text-primary focus:ring-primary"
+                  className="w-5 h-5 rounded border-border-light text-primary focus:ring-primary"
                 />
-                <label htmlFor="visible" className="text-sm font-medium text-text-light dark:text-text-dark">
+                <label htmlFor="visible" className="text-sm font-medium text-text-light">
                   Kategoriyi sitede göster
                 </label>
               </div>
 
               {/* Modal Footer */}
-              <div className="flex gap-3 pt-4 border-t border-border-light dark:border-border-dark">
+              <div className="flex gap-3 pt-4 border-t border-border-light">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-6 py-3 rounded-xl bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-medium hover:bg-border-light dark:hover:bg-border-dark transition-colors"
+                  className="flex-1 rounded-xl border border-border-light bg-white px-6 py-3 font-medium text-text-light transition-colors hover:bg-border-light"
                 >
                   İptal
                 </button>

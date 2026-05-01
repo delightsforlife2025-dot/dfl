@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabaseServer';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, subject, message, phone } = body;
+    const { name, email, subject, message } = body;
 
     // Basic validation
     if (!email || !message) {

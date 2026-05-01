@@ -84,7 +84,7 @@ export default function ImageUpload({
         const filePath = `${fileName}`;
 
         // Upload to Supabase Storage
-        const { data, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from(bucketName)
           .upload(filePath, file, {
             cacheControl: "3600",
@@ -158,7 +158,7 @@ export default function ImageUpload({
         className={`relative border-2 border-dashed rounded-xl p-6 transition-all ${
           dragActive
             ? "border-primary bg-primary/5"
-            : "border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark"
+            : "border-border-light bg-white"
         } ${uploading ? "opacity-50 pointer-events-none" : ""}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -178,7 +178,7 @@ export default function ImageUpload({
         <div className="flex flex-col items-center gap-3">
           <div
             className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              dragActive ? "bg-primary/20" : "bg-border-light dark:bg-border-dark"
+              dragActive ? "bg-primary/20" : "bg-border-light"
             }`}
           >
             <span className="material-symbols-outlined text-3xl text-primary">
@@ -187,10 +187,10 @@ export default function ImageUpload({
           </div>
 
           <div className="text-center">
-            <p className="text-text-light dark:text-text-dark font-medium mb-1">
+            <p className="mb-1 font-medium text-text-light">
               {uploading ? "Yükleniyor..." : "Fotoğraf yüklemek için tıklayın veya sürükleyin"}
             </p>
-            <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+            <p className="text-sm text-subtle-light">
               PNG, JPG, GIF - Maksimum 5MB ({images.length}/{maxImages} fotoğraf)
             </p>
           </div>
@@ -212,7 +212,7 @@ export default function ImageUpload({
           {images.map((imageUrl, index) => (
             <div
               key={index}
-              className="relative aspect-square rounded-xl overflow-hidden bg-border-light dark:bg-border-dark group"
+              className="group relative aspect-square overflow-hidden rounded-xl bg-border-light"
             >
               <Image
                 src={imageUrl}

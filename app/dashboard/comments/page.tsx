@@ -83,7 +83,7 @@ export default function CommentsPage() {
   }
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="font-display bg-background-light min-h-screen">
       <div className="flex">
         <DashboardSidebar activePage="comments" />
 
@@ -93,10 +93,10 @@ export default function CommentsPage() {
             {/* Page Heading */}
             <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
               <div>
-                <p className="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em]">
+                <p className="text-text-light text-4xl font-black leading-tight tracking-[-0.033em]">
                   Müşteri Yorumları
                 </p>
-                <p className="text-text-secondary-light dark:text-text-secondary-dark text-base mt-2">
+                <p className="text-subtle-light text-base mt-2">
                   Müşteri yorumlarını yönetin ve onaylayın
                 </p>
               </div>
@@ -118,7 +118,7 @@ export default function CommentsPage() {
                   className={`px-4 py-2 rounded-lg font-medium text-sm transition ${
                     filter === f
                       ? "bg-primary text-white"
-                      : "bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark hover:bg-border-light dark:hover:bg-border-dark"
+                      : "bg-white/95 text-text-light hover:bg-border-light"
                   }`}
                 >
                   {f === "all" && "Tüm Yorumlar"}
@@ -137,11 +137,11 @@ export default function CommentsPage() {
                     <div className="w-8 h-8 border-4 border-primary/20 rounded-full animate-spin border-t-primary"></div>
                   </div>
                 ) : filteredComments.length === 0 ? (
-                  <div className="rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-8 text-center">
-                    <span className="material-symbols-outlined text-4xl text-text-secondary-light dark:text-text-secondary-dark mb-3 block">
+                  <div className="rounded-xl border border-border-light bg-white/95 p-8 text-center">
+                    <span className="material-symbols-outlined text-4xl text-subtle-light mb-3 block">
                       comment
                     </span>
-                    <p className="text-text-secondary-light dark:text-text-secondary-dark">
+                    <p className="text-subtle-light">
                       {filter === "pending"
                         ? "Beklemede yorum yok"
                         : filter === "approved"
@@ -156,16 +156,16 @@ export default function CommentsPage() {
                       onClick={() => setSelectedComment(comment)}
                       className={`p-4 rounded-lg border cursor-pointer transition ${
                         selectedComment?.id === comment.id
-                          ? "border-primary bg-primary/5 dark:bg-primary/10"
-                          : "border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark hover:border-primary"
+                          ? "border-primary bg-primary/5"
+                          : "border-border-light bg-white/95 hover:border-primary"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3 mb-2">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-text-light dark:text-text-dark truncate">
+                          <h3 className="font-semibold text-text-light truncate">
                             {comment.customer_name}
                           </h3>
-                          <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
+                          <p className="text-xs text-subtle-light">
                             {new Date(comment.created_at).toLocaleDateString('tr-TR')}
                           </p>
                         </div>
@@ -176,7 +176,7 @@ export default function CommentsPage() {
                               className={`material-symbols-outlined text-sm ${
                                 i < comment.rating
                                   ? "text-yellow-400 fill-current"
-                                  : "text-border-light dark:text-border-dark"
+                                  : "text-border-light"
                               }`}
                             >
                               star
@@ -184,15 +184,15 @@ export default function CommentsPage() {
                           ))}
                         </div>
                       </div>
-                      <p className="text-sm text-text-light dark:text-text-dark line-clamp-2">
+                      <p className="text-sm text-text-light line-clamp-2">
                         {comment.comment_text}
                       </p>
-                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border-light/50 dark:border-border-dark/50">
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border-light/50">
                         <span
                           className={`text-xs font-medium px-2 py-1 rounded ${
                             comment.is_approved
-                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
                           {comment.is_approved ? "Onaylı" : "Beklemede"}
@@ -206,17 +206,17 @@ export default function CommentsPage() {
               {/* Comment Details */}
               <div className="lg:col-span-1">
                 {selectedComment ? (
-                  <div className="rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-6 space-y-4 sticky top-6">
+                  <div className="rounded-xl border border-border-light bg-white/95 p-6 space-y-4 sticky top-6">
                     <div>
-                      <h3 className="font-semibold text-text-light dark:text-text-dark mb-1">
+                      <h3 className="font-semibold text-text-light mb-1">
                         {selectedComment.customer_name}
                       </h3>
                       {selectedComment.customer_email && (
-                        <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark break-all">
+                        <p className="text-sm text-subtle-light break-all">
                           {selectedComment.customer_email}
                         </p>
                       )}
-                      <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-2">
+                      <p className="text-xs text-subtle-light mt-2">
                         {new Date(selectedComment.created_at).toLocaleDateString('tr-TR', {
                           weekday: 'long',
                           year: 'numeric',
@@ -230,7 +230,7 @@ export default function CommentsPage() {
 
                     {/* Rating */}
                     <div>
-                      <p className="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                      <p className="text-xs font-medium text-subtle-light mb-2">
                         Puanı
                       </p>
                       <div className="flex gap-1">
@@ -240,7 +240,7 @@ export default function CommentsPage() {
                             className={`material-symbols-outlined ${
                               i < selectedComment.rating
                                 ? "text-yellow-400 fill-current"
-                                : "text-border-light dark:text-border-dark"
+                                : "text-border-light"
                             }`}
                           >
                             star
@@ -251,22 +251,22 @@ export default function CommentsPage() {
 
                     {/* Comment Text */}
                     <div>
-                      <p className="text-xs font-medium text-text-secondary-light dark:text-text-secondary-dark mb-2">
+                      <p className="text-xs font-medium text-subtle-light mb-2">
                         Yorum
                       </p>
-                      <p className="text-sm text-text-light dark:text-text-dark leading-relaxed">
+                      <p className="text-sm text-text-light leading-relaxed">
                         {selectedComment.comment_text}
                       </p>
                     </div>
 
                     {/* Status */}
-                    <div className="pt-4 border-t border-border-light/50 dark:border-border-dark/50 space-y-3">
+                    <div className="pt-4 border-t border-border-light/50 space-y-3">
                       <button
                         onClick={() => toggleApproval(selectedComment.id, selectedComment.is_approved)}
                         className={`w-full flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium text-sm transition ${
                           selectedComment.is_approved
-                            ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:hover:bg-yellow-900/50"
-                            : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"
+                            ? "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
+                            : "bg-green-100 text-green-700 hover:bg-green-200"
                         }`}
                       >
                         <span className="material-symbols-outlined text-base">
@@ -277,7 +277,7 @@ export default function CommentsPage() {
 
                       <button
                         onClick={() => setShowDeleteConfirm(selectedComment.id)}
-                        className="w-full flex items-center justify-center gap-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 px-4 py-2 font-medium text-sm transition"
+                        className="w-full flex items-center justify-center gap-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 font-medium text-sm transition"
                       >
                         <span className="material-symbols-outlined text-base">delete</span>
                         Sil
@@ -286,8 +286,8 @@ export default function CommentsPage() {
 
                     {/* Delete Confirmation */}
                     {showDeleteConfirm === selectedComment.id && (
-                      <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                        <p className="text-sm text-red-700 dark:text-red-400 mb-3">
+                      <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-sm text-red-700 mb-3">
                           Bu yorumu silmek istediğinizden emin misiniz?
                         </p>
                         <div className="flex gap-2">
@@ -299,7 +299,7 @@ export default function CommentsPage() {
                           </button>
                           <button
                             onClick={() => setShowDeleteConfirm(null)}
-                            className="flex-1 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 px-3 py-1.5 rounded text-sm font-medium transition"
+                            className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1.5 rounded text-sm font-medium transition"
                           >
                             İptal
                           </button>
@@ -308,11 +308,11 @@ export default function CommentsPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark p-6 text-center sticky top-6">
-                    <span className="material-symbols-outlined text-4xl text-text-secondary-light dark:text-text-secondary-dark mb-3 block">
+                  <div className="rounded-xl border border-border-light bg-white/95 p-6 text-center sticky top-6">
+                    <span className="material-symbols-outlined text-4xl text-subtle-light mb-3 block">
                       comment
                     </span>
-                    <p className="text-text-secondary-light dark:text-text-secondary-dark">
+                    <p className="text-subtle-light">
                       Ayrıntıları görmek için bir yorum seçin
                     </p>
                   </div>

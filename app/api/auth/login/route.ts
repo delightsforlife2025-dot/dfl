@@ -12,9 +12,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check default credentials from environment first
-    const defaultEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-    const defaultPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+    // Env-based admin (prefer server-only vars; NEXT_PUBLIC_* kept for older setups)
+    const defaultEmail =
+      process.env.ADMIN_EMAIL ?? process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    const defaultPassword =
+      process.env.ADMIN_PASSWORD ?? process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
 
     if (defaultEmail && defaultPassword && email === defaultEmail && password === defaultPassword) {
       // Default credentials match

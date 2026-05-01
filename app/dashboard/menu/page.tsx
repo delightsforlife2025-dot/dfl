@@ -37,13 +37,9 @@ export default function MenuManagementPage() {
   async function fetchData() {
     setLoading(true);
     try {
-      // Fetch categories
-      const { data: categoriesData } = await supabase
-        .from("menu_categories")
-        .select("*")
-        .order("position", { ascending: true });
-
-      setCategories(categoriesData || []);
+      const catRes = await fetch("/api/dashboard/categories", { credentials: "include" });
+      const catJson = (await catRes.json()) as { categories?: MenuCategory[] };
+      setCategories(catRes.ok ? catJson.categories ?? [] : []);
 
       // Fetch menu items
       let query = supabase
@@ -144,9 +140,9 @@ export default function MenuManagementPage() {
 
       setShowModal(false);
       fetchData();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving item:", error);
-      alert("Hata: " + error.message);
+      alert("Hata: " + (error instanceof Error ? error.message : "Bilinmeyen hata"));
     }
   }
 
@@ -208,7 +204,7 @@ export default function MenuManagementPage() {
   }
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="font-display bg-background-light min-h-screen">
       <div className="flex">
         <DashboardSidebar activePage="menu" />
 
@@ -218,10 +214,10 @@ export default function MenuManagementPage() {
             {/* Page Header */}
             <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
               <div>
-                <h1 className="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em]">
+                <h1 className="text-text-light text-4xl font-black leading-tight tracking-[-0.033em]">
                   Menü Yönetimi
                 </h1>
-                <p className="text-text-secondary-light dark:text-text-secondary-dark mt-2">
+                <p className="text-subtle-light mt-2">
                   Menü öğelerinizi ekleyin, düzenleyin veya silin
                 </p>
               </div>
@@ -241,7 +237,7 @@ export default function MenuManagementPage() {
                 className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                   filterCategory === "all"
                     ? "bg-primary text-white"
-                    : "bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark hover:bg-primary/10"
+                    : "border border-border-light bg-white/95 text-text-light hover:bg-primary/10"
                 }`}
               >
                 Tümü ({menuItems.length})
@@ -253,7 +249,7 @@ export default function MenuManagementPage() {
                   className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                     filterCategory === category.id
                       ? "bg-primary text-white"
-                      : "bg-surface-light dark:bg-surface-dark text-text-light dark:text-text-dark hover:bg-primary/10"
+                      : "border border-border-light bg-white/95 text-text-light hover:bg-primary/10"
                   }`}
                 >
                   {category.name}
@@ -264,21 +260,21 @@ export default function MenuManagementPage() {
             {/* Menu Items Grid */}
             {loading ? (
               <div className="text-center py-12">
-                <p className="text-text-secondary-light dark:text-text-secondary-dark">Yükleniyor...</p>
+                <p className="text-subtle-light">Yükleniyor...</p>
               </div>
             ) : menuItems.length === 0 ? (
-              <div className="text-center py-12 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark">
-                <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark text-5xl mb-4">
+              <div className="rounded-xl border border-border-light bg-white/95 py-12 text-center shadow-sm ring-1 ring-black/[0.04]">
+                <span className="material-symbols-outlined text-subtle-light text-5xl mb-4">
                   restaurant_menu
                 </span>
-                <p className="text-text-secondary-light dark:text-text-secondary-dark">Henüz ürün eklenmemiş</p>
+                <p className="text-subtle-light">Henüz ürün eklenmemiş</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {menuItems.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden"
+                    className="overflow-hidden rounded-xl border border-border-light bg-white/95 shadow-sm ring-1 ring-black/[0.04]"
                   >
                     {item.image_url ? (
                       <img
@@ -287,8 +283,8 @@ export default function MenuManagementPage() {
                         className="w-full h-48 object-cover"
                       />
                     ) : (
-                      <div className="w-full h-48 bg-border-light dark:bg-border-dark flex items-center justify-center">
-                        <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark text-5xl">
+                      <div className="w-full h-48 bg-border-light flex items-center justify-center">
+                        <span className="material-symbols-outlined text-subtle-light text-5xl">
                           restaurant
                         </span>
                       </div>
@@ -296,8 +292,8 @@ export default function MenuManagementPage() {
                     <div className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">{item.title}</h3>
-                          <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">
+                          <h3 className="text-text-light text-lg font-bold">{item.title}</h3>
+                          <p className="text-subtle-light text-sm">
                             {getCategoryName(item.category_id)}
                           </p>
                         </div>
@@ -305,27 +301,27 @@ export default function MenuManagementPage() {
                       </div>
 
                       {item.description && (
-                        <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm mb-3 line-clamp-2">
+                        <p className="text-subtle-light text-sm mb-3 line-clamp-2">
                           {item.description}
                         </p>
                       )}
 
                       {item.ingredients && item.ingredients.length > 0 && (
                         <div className="mb-3">
-                          <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">
+                          <p className="text-xs text-subtle-light mb-1">
                             Malzemeler:
                           </p>
                           <div className="flex flex-wrap gap-1">
                             {item.ingredients.slice(0, 3).map((ing, idx) => (
                               <span
                                 key={idx}
-                                className="text-xs bg-background-light dark:bg-background-dark px-2 py-1 rounded"
+                                className="rounded bg-white px-2 py-1 text-xs ring-1 ring-border-light"
                               >
                                 {ing}
                               </span>
                             ))}
                             {item.ingredients.length > 3 && (
-                              <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark px-2 py-1">
+                              <span className="text-xs text-subtle-light px-2 py-1">
                                 +{item.ingredients.length - 3}
                               </span>
                             )}
@@ -335,7 +331,7 @@ export default function MenuManagementPage() {
 
                       <div className="flex gap-2 mb-3">
                         {!item.is_available && (
-                          <span className="text-xs bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-2 py-1 rounded">
+                          <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded">
                             Stokta Yok
                           </span>
                         )}
@@ -353,7 +349,7 @@ export default function MenuManagementPage() {
                         </button>
                         <button
                           onClick={() => toggleAvailability(item.id, item.is_available)}
-                          className="px-3 py-2 bg-background-light dark:bg-background-dark rounded-lg text-sm font-medium hover:bg-border-light dark:hover:bg-border-dark transition-colors"
+                          className="rounded-lg border border-border-light bg-white px-3 py-2 text-sm font-medium transition-colors hover:bg-border-light"
                           title={item.is_available ? "Stokta yok olarak işaretle" : "Stokta var olarak işaretle"}
                         >
                           <span className="material-symbols-outlined text-xl">
@@ -362,7 +358,7 @@ export default function MenuManagementPage() {
                         </button>
                         <button
                           onClick={() => deleteItem(item.id)}
-                          className="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                          className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
                         >
                           <span className="material-symbols-outlined text-xl">delete</span>
                         </button>
@@ -380,11 +376,11 @@ export default function MenuManagementPage() {
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div 
-            className="bg-white dark:bg-surface-dark rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-border-light dark:border-border-dark"
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-border-light"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="p-6 border-b border-border-light dark:border-border-dark bg-linear-to-r from-primary/5 to-transparent">
+            <div className="p-6 border-b border-border-light bg-gradient-to-r from-primary/5 to-transparent">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -393,19 +389,19 @@ export default function MenuManagementPage() {
                     </span>
                   </div>
                   <div>
-                    <h2 className="text-text-light dark:text-text-dark text-2xl font-bold">
+                    <h2 className="text-text-light text-2xl font-bold">
                       {editingItem ? "Ürün Düzenle" : "Yeni Ürün Ekle"}
                     </h2>
-                    <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm">
+                    <p className="text-subtle-light text-sm">
                       {editingItem ? "Ürün bilgilerini güncelleyin" : "Menüye yeni bir ürün ekleyin"}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="w-10 h-10 rounded-xl hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center transition-colors"
+                  className="w-10 h-10 rounded-xl hover:bg-black/5 flex items-center justify-center transition-colors"
                 >
-                  <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark">
+                  <span className="material-symbols-outlined text-subtle-light">
                     close
                   </span>
                 </button>
@@ -418,13 +414,13 @@ export default function MenuManagementPage() {
                 <div className="space-y-6">
                   {/* Temel Bilgiler */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-text-light dark:text-text-dark flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-text-light flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary">info</span>
                       Temel Bilgiler
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                        <label className="block text-sm font-medium text-text-light mb-2">
                           <span className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-base">restaurant</span>
                             Ürün Adı <span className="text-red-500">*</span>
@@ -434,14 +430,14 @@ export default function MenuManagementPage() {
                           type="text"
                           value={formData.title}
                           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                           placeholder="Örn: İskender Kebap"
                           required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                        <label className="block text-sm font-medium text-text-light mb-2">
                           <span className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-base">category</span>
                             Kategori
@@ -450,7 +446,7 @@ export default function MenuManagementPage() {
                         <select
                           value={formData.category_id}
                           onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                         >
                           <option value="">Kategori Seçiniz</option>
                           {categories.map((cat) => (
@@ -463,7 +459,7 @@ export default function MenuManagementPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                      <label className="block text-sm font-medium text-text-light mb-2">
                         <span className="flex items-center gap-2">
                           <span className="material-symbols-outlined text-base">description</span>
                           Açıklama
@@ -472,7 +468,7 @@ export default function MenuManagementPage() {
                       <textarea
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                        className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                         rows={4}
                         placeholder="Ürün hakkında detaylı bilgi..."
                       />
@@ -481,13 +477,13 @@ export default function MenuManagementPage() {
 
                   {/* Fiyat ve Medya */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-text-light dark:text-text-dark flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-text-light flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary">payments</span>
                       Fiyat ve Medya
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                        <label className="block text-sm font-medium text-text-light mb-2">
                           <span className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-base">currency_lira</span>
                             Fiyat (₺) <span className="text-red-500">*</span>
@@ -499,14 +495,14 @@ export default function MenuManagementPage() {
                           min="0"
                           value={formData.price}
                           onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                           placeholder="0.00"
                           required
                         />
                       </div>
 
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                        <label className="block text-sm font-medium text-text-light mb-2">
                           <span className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-base">image</span>
                             Resim URL (Opsiyonel)
@@ -516,10 +512,10 @@ export default function MenuManagementPage() {
                           type="url"
                           value={formData.image_url}
                           onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                           placeholder="https://example.com/image.jpg"
                         />
-                        <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                        <p className="text-xs text-subtle-light mt-1">
                           Dış bağlantılı resim ekleyebilirsiniz veya aşağıdan resim yükleyebilirsiniz
                         </p>
                       </div>
@@ -527,7 +523,7 @@ export default function MenuManagementPage() {
 
                     {/* Image Upload Component */}
                     <div>
-                      <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                      <label className="block text-sm font-medium text-text-light mb-2">
                         <span className="flex items-center gap-2">
                           <span className="material-symbols-outlined text-base">photo_library</span>
                           Ürün Fotoğrafları
@@ -541,7 +537,7 @@ export default function MenuManagementPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                      <label className="block text-sm font-medium text-text-light mb-2">
                         <span className="flex items-center gap-2">
                           <span className="material-symbols-outlined text-base">smart_display</span>
                           YouTube URL
@@ -551,10 +547,10 @@ export default function MenuManagementPage() {
                         type="url"
                         value={formData.youtube_url}
                         onChange={(e) => setFormData({ ...formData, youtube_url: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                         placeholder="https://youtube.com/watch?v=..."
                       />
-                      <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                      <p className="text-xs text-subtle-light mt-1">
                         Ürününüzün yapım videosunu ekleyebilirsiniz
                       </p>
                     </div>
@@ -562,13 +558,13 @@ export default function MenuManagementPage() {
 
                   {/* Malzemeler ve Özellikler */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-text-light dark:text-text-dark flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-text-light flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary">nutrition</span>
                       Malzemeler ve Özellikler
                     </h3>
                     
                     <div>
-                      <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                      <label className="block text-sm font-medium text-text-light mb-2">
                         <span className="flex items-center gap-2">
                           <span className="material-symbols-outlined text-base">grocery</span>
                           Malzemeler
@@ -577,18 +573,18 @@ export default function MenuManagementPage() {
                       <textarea
                         value={formData.ingredients}
                         onChange={(e) => setFormData({ ...formData, ingredients: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                        className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                         rows={2}
                         placeholder="Domates, Peynir, Zeytin, Biber"
                       />
-                      <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
+                      <p className="text-xs text-subtle-light mt-1">
                         Malzemeleri virgülle ayırarak yazın
                       </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                        <label className="block text-sm font-medium text-text-light mb-2">
                           <span className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-base">warning</span>
                             Alerjenler
@@ -598,13 +594,13 @@ export default function MenuManagementPage() {
                           type="text"
                           value={formData.allergens}
                           onChange={(e) => setFormData({ ...formData, allergens: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                           placeholder="Gluten, Süt, Yumurta"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
+                        <label className="block text-sm font-medium text-text-light mb-2">
                           <span className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-base">local_offer</span>
                             Etiketler
@@ -614,7 +610,7 @@ export default function MenuManagementPage() {
                           type="text"
                           value={formData.tags}
                           onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          className="w-full px-4 py-3 rounded-xl border border-border-light bg-white text-text-light focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                           placeholder="Vejetaryen, Acılı, Özel"
                         />
                       </div>
@@ -623,11 +619,11 @@ export default function MenuManagementPage() {
 
                   {/* Durum ve Özellikler */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-text-light dark:text-text-dark flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-text-light flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary">toggle_on</span>
                       Durum ve Özellikler
                     </h3>
-                    <div className="flex flex-wrap gap-4 p-4 bg-background-light dark:bg-background-dark rounded-xl">
+                    <div className="flex flex-wrap gap-4 rounded-xl border border-border-light bg-[#fff9e6] p-4">
                       <label className="flex items-center gap-3 cursor-pointer group">
                         <div className="relative">
                           <input
@@ -636,14 +632,14 @@ export default function MenuManagementPage() {
                             onChange={(e) => setFormData({ ...formData, is_available: e.target.checked })}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-border-light dark:bg-border-dark rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                          <div className="w-11 h-6 bg-border-light rounded-full peer peer-checked:bg-primary transition-colors"></div>
                           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark group-hover:text-primary transition-colors">
+                          <span className="material-symbols-outlined text-subtle-light group-hover:text-primary transition-colors">
                             {formData.is_available ? "check_circle" : "cancel"}
                           </span>
-                          <span className="text-sm font-medium text-text-light dark:text-text-dark">
+                          <span className="text-sm font-medium text-text-light">
                             Stokta Var
                           </span>
                         </div>
@@ -657,14 +653,14 @@ export default function MenuManagementPage() {
                             onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-border-light dark:bg-border-dark rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                          <div className="w-11 h-6 bg-border-light rounded-full peer peer-checked:bg-primary transition-colors"></div>
                           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="material-symbols-outlined text-text-secondary-light dark:text-text-secondary-dark group-hover:text-primary transition-colors">
+                          <span className="material-symbols-outlined text-subtle-light group-hover:text-primary transition-colors">
                             {formData.is_featured ? "star" : "star_outline"}
                           </span>
-                          <span className="text-sm font-medium text-text-light dark:text-text-dark">
+                          <span className="text-sm font-medium text-text-light">
                             Öne Çıkan
                           </span>
                         </div>
@@ -675,12 +671,12 @@ export default function MenuManagementPage() {
               </div>
 
               {/* Modal Footer */}
-              <div className="p-6 border-t border-border-light dark:border-border-dark bg-linear-to-r from-primary/5 to-transparent">
+              <div className="p-6 border-t border-border-light bg-gradient-to-r from-primary/5 to-transparent">
                 <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="flex-1 px-6 py-3 rounded-xl bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-medium hover:bg-border-light dark:hover:bg-border-dark transition-colors flex items-center justify-center gap-2"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border-light bg-white px-6 py-3 font-medium text-text-light transition-colors hover:bg-border-light"
                   >
                     <span className="material-symbols-outlined">close</span>
                     İptal

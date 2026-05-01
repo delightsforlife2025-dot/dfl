@@ -3,8 +3,8 @@ export interface Page {
   id: string;
   slug: string;
   title: string;
-  content: Record<string, any>;
-  metadata?: Record<string, any>;
+  content: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
   is_published: boolean;
   published_at?: string;
   created_at: string;
@@ -33,8 +33,42 @@ export interface SocialLink {
 
 export interface SiteSetting {
   key: string;
-  value: Record<string, any>;
+  value: Record<string, unknown>;
   updated_at: string;
+}
+
+/** Stored JSON in `site_settings` for key `contact_info` */
+export interface ContactInfo {
+  address?: string;
+  phone?: string;
+  email?: string;
+  hours?: string;
+}
+
+/** Home featured dish card (CMS or fallback) */
+export interface FeaturedDishCard {
+  image: string;
+  title: string;
+  description: string;
+  price?: number;
+}
+
+/** `site_settings` key `general_settings` */
+export interface GeneralSiteSettings {
+  site_name?: string;
+  logo_url?: string;
+  favicon_url?: string;
+  site_tagline?: string;
+}
+
+export function asGeneralSiteSettings(v: unknown): GeneralSiteSettings | null {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+  return v as GeneralSiteSettings;
+}
+
+export function asContactInfo(v: unknown): ContactInfo | null {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+  return v as ContactInfo;
 }
 
 export interface ContactMessage {

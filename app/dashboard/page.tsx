@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import type { ContactMessage } from "@/lib/types";
 import DashboardSidebar from "../components/DashboardSidebar";
 
 export default function DashboardPage() {
   const [messageCount, setMessageCount] = useState(0);
   const [menuItemsCount, setMenuItemsCount] = useState(0);
   const [categoriesCount, setCategoriesCount] = useState(0);
-  const [recentMessages, setRecentMessages] = useState<any[]>([]);
+  const [recentMessages, setRecentMessages] = useState<ContactMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,7 +58,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark min-h-screen">
+    <div className="font-display bg-background-light min-h-screen">
       <div className="flex">
         <DashboardSidebar activePage="dashboard" unreadCount={messageCount} />
 
@@ -66,48 +67,48 @@ export default function DashboardPage() {
           <div className="mx-auto max-w-5xl">
             {/* Page Heading */}
             <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
-              <p className="text-text-light dark:text-text-dark text-4xl font-black leading-tight tracking-[-0.033em]">
+              <p className="text-text-light text-4xl font-black leading-tight tracking-[-0.033em]">
                 Hoş Geldiniz
               </p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-10">
-              <div className="flex flex-col gap-2 rounded-xl p-6 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
-                <p className="text-text-secondary-light dark:text-text-secondary-dark text-base font-medium leading-normal">
+              <div className="flex flex-col gap-2 rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04]">
+                <p className="text-base font-medium leading-normal text-subtle-light">
                   Toplam Menü Öğesi
                 </p>
                 {loading ? (
-                  <div className="h-9 w-16 bg-border-light dark:bg-border-dark rounded animate-pulse"></div>
+                  <div className="h-9 w-16 bg-border-light rounded animate-pulse"></div>
                 ) : (
-                  <p className="text-text-light dark:text-text-dark tracking-light text-3xl font-bold leading-tight">
+                  <p className="text-text-light tracking-light text-3xl font-bold leading-tight">
                     {menuItemsCount}
                   </p>
                 )}
               </div>
-              <div className="flex flex-col gap-2 rounded-xl p-6 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
-                <p className="text-text-secondary-light dark:text-text-secondary-dark text-base font-medium leading-normal">
+              <div className="flex flex-col gap-2 rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04]">
+                <p className="text-base font-medium leading-normal text-subtle-light">
                   Kategoriler
                 </p>
                 {loading ? (
-                  <div className="h-9 w-16 bg-border-light dark:bg-border-dark rounded animate-pulse"></div>
+                  <div className="h-9 w-16 bg-border-light rounded animate-pulse"></div>
                 ) : (
-                  <p className="text-text-light dark:text-text-dark tracking-light text-3xl font-bold leading-tight">
+                  <p className="text-text-light tracking-light text-3xl font-bold leading-tight">
                     {categoriesCount}
                   </p>
                 )}
               </div>
               <Link
                 href="/dashboard/messages"
-                className="flex flex-col gap-2 rounded-xl p-6 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark hover:shadow-lg transition-shadow cursor-pointer"
+                className="flex cursor-pointer flex-col gap-2 rounded-xl border border-border-light bg-white/95 p-6 shadow-sm ring-1 ring-black/[0.04] transition-shadow hover:shadow-md"
               >
-                <p className="text-text-secondary-light dark:text-text-secondary-dark text-base font-medium leading-normal">
+                <p className="text-subtle-light text-base font-medium leading-normal">
                   Yeni Mesajlar
                 </p>
                 {loading ? (
                   <div className="h-9 w-16 bg-primary/20 rounded animate-pulse"></div>
                 ) : (
-                  <p className="text-text-light dark:text-text-dark tracking-light text-3xl font-bold leading-tight text-primary">
+                  <p className="text-text-light tracking-light text-3xl font-bold leading-tight text-primary">
                     {messageCount}
                   </p>
                 )}
@@ -115,13 +116,13 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Actions */}
-            <h2 className="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">
+            <h2 className="text-text-light text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">
               Hızlı Eylemler
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
               <Link
                 href="/dashboard/menu"
-                className="flex flex-col gap-3 pb-3 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-4 transition-shadow hover:shadow-lg"
+                className="flex flex-col gap-3 rounded-xl border border-border-light bg-white/95 p-4 pb-3 shadow-sm ring-1 ring-black/[0.04] transition-shadow hover:shadow-md"
               >
                 <div
                   className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
@@ -131,10 +132,10 @@ export default function DashboardPage() {
                   }}
                 ></div>
                 <div>
-                  <p className="text-text-light dark:text-text-dark text-base font-semibold leading-normal">
+                  <p className="text-text-light text-base font-semibold leading-normal">
                     Menüyü Yönet
                   </p>
-                  <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal mt-1">
+                  <p className="text-subtle-light text-sm font-normal leading-normal mt-1">
                     Yeni yemekler ekleyin veya mevcutları güncelleyin.
                   </p>
                 </div>
@@ -142,7 +143,7 @@ export default function DashboardPage() {
 
               <Link
                 href="/dashboard/settings"
-                className="flex flex-col gap-3 pb-3 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-4 transition-shadow hover:shadow-lg"
+                className="flex flex-col gap-3 rounded-xl border border-border-light bg-white/95 p-4 pb-3 shadow-sm ring-1 ring-black/[0.04] transition-shadow hover:shadow-md"
               >
                 <div
                   className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg"
@@ -152,10 +153,10 @@ export default function DashboardPage() {
                   }}
                 ></div>
                 <div>
-                  <p className="text-text-light dark:text-text-dark text-base font-semibold leading-normal">
+                  <p className="text-text-light text-base font-semibold leading-normal">
                     Site Bilgilerini Düzenle
                   </p>
-                  <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm font-normal leading-normal mt-1">
+                  <p className="text-subtle-light text-sm font-normal leading-normal mt-1">
                     Hakkımızda veya iletişim bilgilerinizi güncelleyin.
                   </p>
                 </div>
@@ -164,13 +165,13 @@ export default function DashboardPage() {
 
             {/* Recent Messages */}
             <div className="w-full">
-              <h2 className="text-text-light dark:text-text-dark text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">
+              <h2 className="text-text-light text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">
                 Son Mesajlar
               </h2>
-              <div className="rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark overflow-hidden">
+              <div className="overflow-hidden rounded-xl border border-border-light bg-white/95 shadow-sm ring-1 ring-black/[0.04]">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
-                    <thead className="text-xs text-text-secondary-light dark:text-text-secondary-dark uppercase bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+                    <thead className="border-b border-border-light bg-[#fff9e6] text-xs uppercase text-subtle-light">
                       <tr>
                         <th className="px-6 py-3 font-medium" scope="col">
                           İsim
@@ -197,20 +198,20 @@ export default function DashboardPage() {
                         </tr>
                       ) : recentMessages.length === 0 ? (
                         <tr>
-                          <td colSpan={4} className="px-6 py-8 text-center text-text-secondary-light dark:text-text-secondary-dark">
+                          <td colSpan={4} className="px-6 py-8 text-center text-subtle-light">
                             Henüz mesaj yok
                           </td>
                         </tr>
                       ) : (
                         recentMessages.map((message) => (
-                          <tr key={message.id} className="border-b border-border-light dark:border-border-dark last:border-0">
-                            <td className="px-6 py-4 font-medium text-text-light dark:text-text-dark">
+                          <tr key={message.id} className="border-b border-border-light last:border-0">
+                            <td className="px-6 py-4 font-medium text-text-light">
                               {message.name}
                             </td>
-                            <td className="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">
+                            <td className="px-6 py-4 text-subtle-light">
                               {message.email}
                             </td>
-                            <td className="px-6 py-4 text-text-secondary-light dark:text-text-secondary-dark">
+                            <td className="px-6 py-4 text-subtle-light">
                               {new Date(message.created_at).toLocaleDateString('tr-TR', {
                                 day: '2-digit',
                                 month: '2-digit',

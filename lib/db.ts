@@ -10,10 +10,11 @@ export async function getSiteSettings() {
   const { data, error } = await supabaseAdmin.from('site_settings').select('key, value');
   if (error) throw error;
   // Convert array of {key, value} into an object map
-  const map: Record<string, any> = {};
-  (data || []).forEach((r: any) => {
-    map[r.key] = r.value;
-  });
+  const map: Record<string, unknown> = {};
+  for (const r of data || []) {
+    const row = r as { key: string; value: unknown };
+    map[row.key] = row.value;
+  }
   return map;
 }
 

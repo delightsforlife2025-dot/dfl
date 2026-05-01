@@ -123,7 +123,7 @@ export async function getSocialLinks(): Promise<SocialLink[]> {
 }
 
 // Fetch site setting by key
-export async function getSiteSetting(key: string): Promise<any> {
+export async function getSiteSetting(key: string): Promise<unknown> {
   const { data, error } = await supabase
     .from('site_settings')
     .select('value')
@@ -139,7 +139,7 @@ export async function getSiteSetting(key: string): Promise<any> {
 }
 
 // Fetch all site settings
-export async function getAllSiteSettings(): Promise<Record<string, any>> {
+export async function getAllSiteSettings(): Promise<Record<string, unknown>> {
   const { data, error } = await supabase
     .from('site_settings')
     .select('*');
@@ -150,7 +150,7 @@ export async function getAllSiteSettings(): Promise<Record<string, any>> {
   }
 
   // Convert array to key-value object
-  const settings: Record<string, any> = {};
+  const settings: Record<string, unknown> = {};
   data?.forEach((setting: SiteSetting) => {
     settings[setting.key] = setting.value;
   });
