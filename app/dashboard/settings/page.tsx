@@ -377,7 +377,8 @@ export default function SettingsPage() {
                             aspectRatio="aspect-[3/1]"
                           />
                           <p className="text-xs text-subtle-light mt-2">
-                            Header&apos;da gösterilecek logo (tercihen transparan PNG, önerilen boyut: 300x100px)
+                            Header&apos;da gösterilecek logo (tercihen transparan PNG, önerilen boyut: 300x100px).
+                            Yükleme sonrası alttaki <strong>Ayarları Kaydet</strong> düğmesine basın.
                           </p>
                         </div>
 
@@ -395,7 +396,8 @@ export default function SettingsPage() {
                             aspectRatio="aspect-square"
                           />
                           <p className="text-xs text-subtle-light mt-2">
-                            Tarayıcı sekmesinde gösterilecek ikon (kare format, önerilen boyut: 32x32 veya 64x64 px)
+                            PNG veya ICO (32×32 / 64×64 önerilir). ICO dosyaları desteklenir.
+                            Kaydetmeden siteye yansımaz — <strong>Ayarları Kaydet</strong> kullanın.
                           </p>
                         </div>
 

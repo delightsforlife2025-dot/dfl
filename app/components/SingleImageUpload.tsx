@@ -2,6 +2,7 @@
 
 import { useState, useRef, ChangeEvent } from "react";
 import { supabasePublicObjectPath } from "@/lib/supabasePublicObjectPath";
+import { isLikelyImageFile } from "@/lib/imageFileAccept";
 interface SingleImageUploadProps {
   imageUrl: string;
   onImageChange: (url: string) => void;
@@ -28,9 +29,8 @@ export default function SingleImageUpload({
   };
 
   const handleFile = async (file: File) => {
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
-      alert("Geçerli bir resim dosyası seçin.");
+    if (!isLikelyImageFile(file)) {
+      alert("Desteklenen format: PNG, JPG, GIF, WebP, SVG, ICO, AVIF, BMP.");
       return;
     }
     
@@ -107,7 +107,7 @@ export default function SingleImageUpload({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.ico,image/x-icon,image/vnd.microsoft.icon"
         onChange={handleChange}
         className="hidden"
         disabled={uploading}

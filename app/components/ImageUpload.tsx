@@ -3,6 +3,7 @@
 import { useState, useRef, ChangeEvent, DragEvent } from "react";
 import Image from "next/image";
 import { supabasePublicObjectPath } from "@/lib/supabasePublicObjectPath";
+import { isLikelyImageFile } from "@/lib/imageFileAccept";
 
 interface ImageUploadProps {
   images: string[];
@@ -59,8 +60,8 @@ export default function ImageUpload({
 
     // Validate file types
     const validFiles = filesToUpload.filter((file) => {
-      if (!file.type.startsWith("image/")) {
-        alert(`${file.name} geçerli bir resim dosyası değil.`);
+      if (!isLikelyImageFile(file)) {
+        alert(`${file.name} desteklenmiyor (PNG, JPG, GIF, WebP, SVG, ICO, …).`);
         return false;
       }
       if (file.size > 5 * 1024 * 1024) {
@@ -162,7 +163,7 @@ export default function ImageUpload({
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*"
+          accept="image/*,.ico,image/x-icon,image/vnd.microsoft.icon"
           onChange={handleChange}
           className="hidden"
           disabled={uploading || images.length >= maxImages}

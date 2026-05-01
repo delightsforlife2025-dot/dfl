@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseServer";
 import { errorMessage } from "@/lib/errorMessage";
+import { contentTypeForImageFile, isLikelyImageFile } from "@/lib/imageFileAccept";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const DEFAULT_BUCKET = "menu-images";
@@ -31,8 +32,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Geçerli bir dosya gerekli" }, { status: 400 });
     }
 
-    if (!file.type.startsWith("image/")) {
-      return NextResponse.json({ error: "Sadece resim dosyaları yüklenebilir" }, { status: 400 });
+    if (!isLikelyImageFile(file)) {
+      return NextResponse.json(
+        { error: "Desteklenen format: PNG, JPG, GIF, WebP, SVG, ICO, AVIF, BMP" },
+        { status: 400 }
+      );
     }
 
     if (file.size > MAX_BYTES) {
@@ -43,9 +47,10 @@ export async function POST(request: NextRequest) {
     const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "jpg";
     const path = `${Date.now()}-${Math.random().toString(36).slice(2, 12)}.${safeExt}`;
     const buffer = Buffer.from(await file.arrayBuffer());
+    const contentType = contentTypeForImageFile(file, safeExt);
 
     const { error } = await supabaseAdmin.storage.from(bucket).upload(path, buffer, {
-      contentType: file.type || "application/octet-stream",
+      contentType,
       cacheControl: "3600",
       upsert: false,
     });
